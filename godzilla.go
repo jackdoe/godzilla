@@ -39,7 +39,7 @@ func (this *Context) Render(name string) {
 		return Views + s + TemplateExt
 	}
 	name = gen(name)
-	if this.IsXHR() {
+	if this.IsXHR() || len(this.Layout) == 0 {
 		ts,err = template.ParseFiles(name)
 		ts.Parse(`{{template "yield" .}}`)
 	} else {
