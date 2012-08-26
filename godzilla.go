@@ -22,7 +22,8 @@ var (
 	TemplateExt string = ".html"
 )
 func (this *Context) IsXHR() bool {
-	v,ok := this.R.Header["X-Requested-With"]; if ok {
+	v,ok := this.R.Header["X-Requested-With"]; 
+	if ok {
 		for _,val := range v {
 			if strings.ToLower(val) == strings.ToLower("XMLHttpRequest") {
 				return true
