@@ -38,11 +38,12 @@ func (this *Context) Render(name string) {
 	gen := func(s string) string {
 		return Views + s + TemplateExt
 	}
+	name = gen(name)
 	if this.IsXHR() {
-		ts,err = template.ParseFiles(gen(name))
+		ts,err = template.ParseFiles(name)
 		ts.Parse(`{{template "yield" .}}`)
 	} else {
-		ts, err = template.ParseFiles(gen(this.Layout),gen(name))
+		ts, err = template.ParseFiles(gen(this.Layout),name
 	}
 	if err != nil {
 		log.Printf("error rendering: %s - %s",name,err.Error())
