@@ -4,8 +4,11 @@ import (
 	"github.com/jackdoe/godzilla"
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
+	"log"
 )
+
 func h(ctx *godzilla.Context) {
+	ctx.Query(ctx,"SELECT * FROM session")
 	ctx.Output["list"] = []interface{}{"a","b"}
 	ctx.Render("sample")
 }

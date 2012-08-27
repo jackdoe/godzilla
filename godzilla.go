@@ -18,6 +18,7 @@ type Context struct {
 	Splat []string
 }
 var (
+	Debug bool = false
 	Views string = "./v/"
 	NoLayoutForXHR bool = true
 	TemplateExt string = ".html"
@@ -77,4 +78,43 @@ func Start(host string, port string,db *sql.DB) {
 	})
 	log.Printf("started: http://%s:%s/",host,port)
 	log.Fatal(http.ListenAndServe(host + ":" + port, nil))
+}
+
+// POC, bad performance, do not use in production
+func (this *Context) Query(query string, args ...interface{}) []map[string]interface{} {
+	var err error
+	r := make([]map[string]interface{},0)
+	rows,err := this.DB.Query(query,args...); 
+	if err != nil {
+		log.Printf("%s - %s",query,err)
+		return r
+	}
+	columns, err := rows.Columns()
+	if err != nil {
+		log.Printf("%s - %s",query, err)
+		return r
+	}
+	for rows.Next() {
+		row := map[string]*interface{}{}
+		fields := []interface{}{}
+		for _,v := range columns {
+			t := new(interface{})
+			row[v] = t
+			fields = append(fields,t)
+		}
+		err = rows.Scan(fields...)
+		if err != nil {
+			log.Printf("%s",err)
+		} else {
+			x := map[string]interface{}{}
+			for k,v := range row {
+				x[k] = *v
+			}
+			r = append(r,x)
+		}
+	}
+	if (Debug) {
+		log.Printf("extracted %d rows @ %s",len(r),query)
+	}
+	return r
 }
