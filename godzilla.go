@@ -1,3 +1,4 @@
+// micro web framework. it is not very generic, but it makes writing small apps very fast
 package godzilla
 import (
 	"net/http"
