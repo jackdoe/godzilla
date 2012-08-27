@@ -122,7 +122,6 @@ func (this *Context) Redirect(url string) {
 //		ctx.Error("something very very bad just happened",http.StatusInternalServerError)
 func (this *Context) Error(message string, code int) {
 	http.Error(this.W,message,code)
-	panic(message)
 }
 
 // WARNING: POC, bad performance, do not use in production.
