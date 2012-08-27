@@ -198,6 +198,9 @@ func (this *Context) Replace(table string,input map[string]interface{}) (error) 
 	}
 
 	q := fmt.Sprintf("REPLACE INTO `%s` (`%s`) VALUES(%s)",table,strings.Join(skeys,","),strings.Repeat("?",len(skeys)))
+	if Debug > 1 {
+		log.Printf("replace: %s",q)
+	}
 	_,e := this.DB.Exec(q,values...)
 	return e
 }
