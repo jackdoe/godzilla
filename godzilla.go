@@ -19,6 +19,10 @@ type Context struct {
 	Layout string
 	Splat []string
 }
+const (
+	DebugQuery = 1
+	DebugQueryResult = 2
+)
 var (
 	Debug int = 0
 	Views string = "./v/"
@@ -169,12 +173,8 @@ func (this *Context) Query(query string, args ...interface{}) []map[string]inter
 			r = append(r,x)
 		}
 	}
-	if Debug > 0 {
-		log.Printf("extracted %d rows @ %s",len(r),query)
-		if Debug > 1 {
-			log.Printf("ABSOLUTE RETURN: %#v",r)
-		}
-	}
+	if (Debug & DebugQuery) > 0 { log.Printf("extracted %d rows @ %s",len(r),query) }
+	if (Debug & DebugQueryResult) > 0 { log.Printf("%s: %#v",query,r) }
 	return r
 }
 
@@ -197,10 +197,9 @@ func (this *Context) Replace(table string,input map[string]interface{}) (error) 
 		values = append(values,v)
 	}
 
-	q := fmt.Sprintf("REPLACE INTO `%s` (`%s`) VALUES(%s)",table,strings.Join(skeys,","),strings.Repeat("?",len(skeys)))
-	if Debug > 1 {
-		log.Printf("replace: %s",q)
-	}
+	questionmarks := strings.TrimRight(strings.Repeat("?,",len(skeys)),",")
+	q := fmt.Sprintf("REPLACE INTO `%s` (`%s`) VALUES(%s)",table,strings.Join(skeys,"`,`"),questionmarks)
+	if (Debug & DebugQuery) > 0 { log.Printf("%s",q) }
 	_,e := this.DB.Exec(q,values...)
 	return e
 }
