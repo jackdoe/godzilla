@@ -33,8 +33,8 @@ func exit(ctx *Context) {
 var addr string = "localhost:65444"
 var URL string = "http://" + addr + "/"
 
-func redir(ctx *Context) {
-	ctx.Redirect("http://google.com")
+func redir_to_blabla(ctx *Context) {
+	ctx.Redirect("/blabla")
 }
 func errorize(ctx *Context) {
 	ctx.Error("errorize",500)
@@ -130,7 +130,7 @@ func TestStart(t *testing.T)  {
 	Route("^/set$",set)
 	Route("^/clear$",set)
 	Route("^/get$",get)	
-	Route("^/redir$",redir)
+	Route("^/redir_to_blabla$",redir_to_blabla)
 	Route("^/errorize$",errorize)
 
 	start_server(db)
@@ -158,7 +158,7 @@ func TestStart(t *testing.T)  {
 	expect(t,URL + "get",200,"^value$",true) 
 
 	expect(t,URL + "errorize",500,"^errorize",true) 
-	expect(t,URL + "redir",302,"^$",true) 
+	expect(t,URL + "redir_to_blabla",200,"^blabla$",true) // redirects to /blabla
 	gen := func(s string) string {
 		return Views + s + TemplateExt
 	}
