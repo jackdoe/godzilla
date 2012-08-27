@@ -20,7 +20,7 @@ type Context struct {
 	Splat []string
 }
 var (
-	Debug bool = false
+	Debug int = 0
 	Views string = "./v/"
 	NoLayoutForXHR bool = true
 	TemplateExt string = ".html"
@@ -169,9 +169,11 @@ func (this *Context) Query(query string, args ...interface{}) []map[string]inter
 			r = append(r,x)
 		}
 	}
-	if (Debug) {
+	if Debug > 0 {
 		log.Printf("extracted %d rows @ %s",len(r),query)
-		log.Printf("ABSOLUTE RETURN: %#v",r)
+		if Debug > 1 {
+			log.Printf("ABSOLUTE RETURN: %#v",r)
+		}
 	}
 	return r
 }

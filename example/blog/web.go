@@ -59,6 +59,7 @@ func main() {
 	defer db.Close()
 	db.Exec("CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY,title TEXT NOT NULL,long TEXT NOT NULL,stamp INTEGER)")
 	godzilla.EnableSessions = false
+	godzilla.Debug = 1
 	godzilla.Route("^/$",list)
 	godzilla.Route("^/show/(\\d+)$",show)
 	godzilla.Route("^/admin/$",list)
