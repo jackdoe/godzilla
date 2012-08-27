@@ -41,7 +41,6 @@ func Route(pattern string, handler func(*Context)()) {
 // 		session.CookieDomain = "localhost"
 // 		godzilla.Route("/product/show/(\d+)",product_show)
 // 		godzilla.Start("localhost:8080",db)
-
 func Start(addr string,db *sql.DB) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		s := session.New(w,r)
@@ -69,7 +68,6 @@ func Start(addr string,db *sql.DB) {
 //			// or
 //			ctx.Render("ajax")
 //		}
-
 func (this *Context) IsXHR() bool {
 	v,ok := this.R.Header["X-Requested-With"]; 
 	if ok {
@@ -106,11 +104,13 @@ func (this *Context) Render(name string) {
 func (this *Context) Write(s string) {
 	fmt.Fprintf(this.W,"%s",s)
 }
+
 // example: 
 //	ctx.Redirect("http://golang.org")
 func (this *Context) Redirect(url string) {
 	http.Redirect(this.W,this.R,url,302)
 }
+
 // example:
 //		ctx.Error("something very very bad just happened",500)
 //		// or
