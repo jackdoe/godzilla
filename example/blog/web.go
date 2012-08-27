@@ -7,7 +7,7 @@ import (
 	"time"
 )
 func is_admin(ctx *godzilla.Context) (bool) {
-	ip,_ := regexp.Match("127.0.0.1:",[]byte(ctx.R.RemoteAddr))
+	ip,_ := regexp.Match("^127\\.0\\.0\\.1:",[]byte(ctx.R.RemoteAddr))
 	uri,_ := regexp.Match("^/admin/",[]byte(ctx.R.RequestURI))	
 	return (ip && uri)
 }
