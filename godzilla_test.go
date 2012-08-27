@@ -114,7 +114,7 @@ func expect(t *testing.T,url string, code int,pattern interface{},ajax bool) {
 	}
 }
 func TestStart(t *testing.T)  {
-	cleanup(t)
+	cleanup()
 	var err error
 	db, _ := sql.Open("sqlite3", "./foo.db")
 	Views = "./v/"
@@ -192,18 +192,15 @@ func TestStart(t *testing.T)  {
 	err = ctx.Replace("x",found)
 	if err == nil { t.Fatalf("expected error when updating int with string")}
 
-	cleanup(t)
+	cleanup()
 	stop_server()
 }
-func cleanup(t *testing.T) {
+func cleanup() {
 	gen := func(s string) string {
 		return Views + s + TemplateExt
 	}
 	f := []string{gen("layout"),gen("session"),gen("sample"), Views,"./foo.db"}
 	for _, file := range f {
-		err := os.Remove(file)
-		if err != nil {
-			t.Fatalf("%s",err)
-		}
+		os.Remove(file)
 	}	
 }
