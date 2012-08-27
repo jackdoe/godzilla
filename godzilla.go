@@ -26,6 +26,7 @@ var (
 )
 
 var routes = map[*regexp.Regexp]func(*Context)(){}
+
 // example: godzilla.Route("/product/show/(\d+)",product_show)
 func Route(pattern string, handler func(*Context)()) {
 	routes[regexp.MustCompile(pattern)]=handler
@@ -105,7 +106,8 @@ func (this *Context) Render(name string) {
 func (this *Context) Write(s string) {
 	fmt.Fprintf(this.W,"%s",s)
 }
-// ctx.Redirect("http://golang.org")
+// example: 
+//	ctx.Redirect("http://golang.org")
 func (this *Context) Redirect(url string) {
 	http.Redirect(this.W,this.R,url,302)
 }

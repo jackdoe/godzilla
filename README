@@ -7,10 +7,10 @@ package godzilla
 VARIABLES
 
 var (
- Debug          bool   = false
- Views          string = "./v/"
- NoLayoutForXHR bool   = true
- TemplateExt    string = ".html"
+    Debug          bool   = false
+    Views          string = "./v/"
+    NoLayoutForXHR bool   = true
+    TemplateExt    string = ".html"
 )
 
 
@@ -25,13 +25,13 @@ func Start(addr string, db *sql.DB)
 TYPES
 
 type Context struct {
- W      http.ResponseWriter
- R      *http.Request
- S      *session.SessionObject
- DB     *sql.DB
- Output map[string]interface{}
- Layout string
- Splat  []string
+    W      http.ResponseWriter
+    R      *http.Request
+    S      *session.SessionObject
+    DB     *sql.DB
+    Output map[string]interface{}
+    Layout string
+    Splat  []string
 }
 
 func (this *Context) Error(message string, code int)
@@ -44,10 +44,11 @@ func (this *Context) Error(message string, code int)
 func (this *Context) IsXHR() bool
 
 func (this *Context) Query(query string, args ...interface{}) []map[string]interface{}
-    WARNING: POC, bad performance, do not use in production returns slice of
-    map[query_result_fields]query_result_values, so for example table with
-    fields id,data,stamp will return [{id: xx,data: xx, stamp: xx},{id:
-    xx,data: xx,stamp: xx}] example:
+    WARNING: POC, bad performance, do not use in production.
+
+    Returns slice of map[query_result_fields]query_result_values, so for
+    example table with fields id,data,stamp will return [{id: xx,data: xx,
+    stamp: xx},{id: xx,data: xx,stamp: xx}] example:
 
 	ctx.Output["SessionList"] = ctx.Query("SELECT * FROM session")
 
