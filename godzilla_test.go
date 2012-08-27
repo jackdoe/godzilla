@@ -182,7 +182,7 @@ func TestStart(t *testing.T)  {
 	if found["title"] != u["title"] { t.Fatalf("title field mismatch: %s - %s",found["title"],u["title"])}
 	found["title"] = "yyy"
 
-	err = ctx.Replace(x,found)
+	err = ctx.Replace("x",found)
 	if err != nil { t.Fatalf("%s",err)}
 	found_again := ctx.FindById("x",found["id"])
 	if found_again != nil { t.Fatalf("couldnt find %s",found["id"])}
