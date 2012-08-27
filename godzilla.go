@@ -15,7 +15,7 @@ type Context struct {
 	R *http.Request
 	S *session.SessionObject
 	DB *sql.DB
-	Output map[string]interface{}
+	O map[string]interface{}
 	Layout string
 	Splat []string
 }
@@ -100,7 +100,7 @@ func (this *Context) Render(name string) {
 	if err != nil {
 		log.Printf("error rendering: %s - %s",name,err.Error())
 	}
-	ts.Execute(this.W, this.Output)
+	ts.Execute(this.W, this.O)
 }
 
 // shorthand for writing strings into the http writer
@@ -122,6 +122,7 @@ func (this *Context) Redirect(url string) {
 //		ctx.Error("something very very bad just happened",http.StatusInternalServerError)
 func (this *Context) Error(message string, code int) {
 	http.Error(this.W,message,code)
+	panic(message)
 }
 
 // WARNING: POC, bad performance, do not use in production.
@@ -130,7 +131,7 @@ func (this *Context) Error(message string, code int) {
 // so for example table with fields id,data,stamp will return
 // [{id: xx,data: xx, stamp: xx},{id: xx,data: xx,stamp: xx}]
 // example:
-// 		ctx.Output["SessionList"] = ctx.Query("SELECT * FROM session")
+// 		ctx.O["SessionList"] = ctx.Query("SELECT * FROM session")
 // and then in the template:
 // 	{{range .SessionList}}
 //		id: {{.id}}<br>
@@ -174,3 +175,14 @@ func (this *Context) Query(query string, args ...interface{}) []map[string]inter
 	}
 	return r
 }
+
+func (this *Context) FindById(table string, id interface{}) (map[string]interface{}) {
+	o := this.Query("SELECT * FROM `"+table+"` WHERE id=?",id)
+	if len(o) > 0 {
+		return o[0]
+	} 
+	return map[string]interface{}{}
+} 
+// func (this *Context) Replace(table string,i map[string]interface{}) (bool,error) {
+
+// }

@@ -56,13 +56,13 @@ func sample_force_no_layout(ctx *Context) {
 func set(ctx *Context) {
 	ctx.S.Set("key","value")
 	x,ok := ctx.S.Get("key"); if ok {
-		ctx.Output["key"] = x
+		ctx.O["key"] = x
 	}
 	ctx.Render("session")
 }
 func get(ctx *Context) {
 	x,ok := ctx.S.Get("key"); if ok {
-		ctx.Output["key"] = x
+		ctx.O["key"] = x
 	}
 	ctx.Render("session")
 }
@@ -70,7 +70,7 @@ func get(ctx *Context) {
 func clear(ctx *Context) {
 	ctx.S.Set("key",nil)
 	x,ok := ctx.S.Get("key"); if ok {
-		ctx.Output["key"] = x
+		ctx.O["key"] = x
 	}
 	ctx.Render("session")
 }

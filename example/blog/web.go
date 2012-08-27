@@ -12,9 +12,9 @@ func is_admin(ctx *godzilla.Context) (bool) {
 	return (ip && uri)
 }
 func list(ctx *godzilla.Context) {
-	ctx.Output["title"] = "godzilla blog!"
-	ctx.Output["items"] = ctx.Query("SELECT * FROM posts ORDER BY stamp DESC")
-	ctx.Output["is_admin"] = is_admin(ctx)
+	ctx.O["title"] = "godzilla blog!"
+	ctx.O["items"] = ctx.Query("SELECT * FROM posts ORDER BY stamp DESC")
+	ctx.O["is_admin"] = is_admin(ctx)
 	ctx.Render("list")
 }
 func show(ctx *godzilla.Context) {
@@ -27,11 +27,11 @@ func show(ctx *godzilla.Context) {
 	}
 	switch ctx.Splat[1] {
 		case "edit","create":
-			if ! is_admin(ctx) { err() ; return }
-			ctx.Output["title"] = ctx.Splat[1]
+			if ! is_admin(ctx) { err() }
+			ctx.O["title"] = ctx.Splat[1]
 			o,l := find(ctx.Splat[2]);
 			if (ctx.R.Method == "GET") {
-				if (l == 1) { ctx.Output["item"] = o[0] }
+				if (l == 1) { ctx.O["item"] = o[0] }
 				ctx.Render("form")
 			} else {
 				values := []interface{}{ctx.R.FormValue("title"),ctx.R.FormValue("long"),time.Now().Unix()}
@@ -54,9 +54,9 @@ func show(ctx *godzilla.Context) {
 			ctx.Redirect("/admin/")
 		default:
 			o,l := find(ctx.Splat[1]); 
-			if l != 1 { err() ; return }
-			ctx.Output["title"] = o[0]["title"]
-			ctx.Output["item"] = o[0]
+			if l != 1 { err() }
+			ctx.O["title"] = o[0]["title"]
+			ctx.O["item"] = o[0]
 			ctx.Render("show")
 	}
 }
