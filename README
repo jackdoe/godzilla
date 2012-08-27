@@ -3,6 +3,8 @@ PACKAGE
 package godzilla
     import "github.com/jackdoe/godzilla"
 
+    micro web framework. it is not very generic, but it makes writing small
+    apps very fast
 
 VARIABLES
 
