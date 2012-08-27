@@ -76,7 +76,7 @@ func Start(addr string,db *sql.DB) {
 		log.Printf("%s - NOT FOUND",path)
 		http.NotFound(w,r)
 	})
-	log.Printf("started: http://%s/",host,port)
+	log.Printf("started: http://%s/",addr)
 	log.Fatal(http.ListenAndServe(addr, nil))
 }
 
