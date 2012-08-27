@@ -19,7 +19,7 @@ var (
 FUNCTIONS
 
 func Route(pattern string, handler func(*Context))
-    example: godzilla.Route("/product/show/(\d+)",product_show)
+    example: godzilla.Route("/product/show/(\\d+)",product_show)
 
 func Start(addr string, db *sql.DB)
     starts the http server example:
@@ -29,7 +29,7 @@ func Start(addr string, db *sql.DB)
 	session.Init(db,"session")
 	session.CookieKey = "go.is.awesome"
 	session.CookieDomain = "localhost"
-	godzilla.Route("/product/show/(\d+)",product_show)
+	godzilla.Route("/product/show/(\\d+)",product_show)
 	godzilla.Start("localhost:8080",db)
 
 
