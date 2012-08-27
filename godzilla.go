@@ -117,8 +117,9 @@ func (this *Context) Error(message string, code int) {
 	http.Error(this.W,message,code)
 }
 
-// WARNING: POC, bad performance, do not use in production
-// returns slice of map[query_result_fields]query_result_values,
+// WARNING: POC, bad performance, do not use in production.
+// 
+// Returns slice of map[query_result_fields]query_result_values,
 // so for example table with fields id,data,stamp will return
 // [{id: xx,data: xx, stamp: xx},{id: xx,data: xx,stamp: xx}]
 // example:

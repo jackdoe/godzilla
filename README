@@ -1,0 +1,76 @@
+PACKAGE
+
+package godzilla
+    import "github.com/jackdoe/godzilla"
+
+
+VARIABLES
+
+var (
+ Debug          bool   = false
+ Views          string = "./v/"
+ NoLayoutForXHR bool   = true
+ TemplateExt    string = ".html"
+)
+
+
+FUNCTIONS
+
+func Route(pattern string, handler func(*Context))
+    example: godzilla.Route("/product/show/(\d+)",product_show)
+
+func Start(addr string, db *sql.DB)
+
+
+TYPES
+
+type Context struct {
+ W      http.ResponseWriter
+ R      *http.Request
+ S      *session.SessionObject
+ DB     *sql.DB
+ Output map[string]interface{}
+ Layout string
+ Splat  []string
+}
+
+func (this *Context) Error(message string, code int)
+    example:
+
+	ctx.Error("something very very bad just happened",500)
+	// or
+	ctx.Error("something very very bad just happened",http.StatusInternalServerError)
+
+func (this *Context) IsXHR() bool
+
+func (this *Context) Query(query string, args ...interface{}) []map[string]interface{}
+    WARNING: POC, bad performance, do not use in production returns slice of
+    map[query_result_fields]query_result_values, so for example table with
+    fields id,data,stamp will return [{id: xx,data: xx, stamp: xx},{id:
+    xx,data: xx,stamp: xx}] example:
+
+	ctx.Output["SessionList"] = ctx.Query("SELECT * FROM session")
+
+    and then in the template:
+
+	{{range .SessionList}}
+		id: {{.id}}<br>
+		data: {{.data}}<br>
+		stamp: {{.stamp}}
+	{{end}}
+
+func (this *Context) Redirect(url string)
+    ctx.Redirect("http://golang.org")
+
+func (this *Context) Render(name string)
+
+func (this *Context) Write(s string)
+    shorthand for writing strings into the http writer example:
+
+	ctx.Write("luke, i am your father")
+
+
+SUBDIRECTORIES
+
+	example
+
