@@ -24,51 +24,23 @@ var (
 	NoLayoutForXHR bool = true
 	TemplateExt string = ".html"
 )
-func (this *Context) IsXHR() bool {
-	v,ok := this.R.Header["X-Requested-With"]; 
-	if ok {
-		for _,val := range v {
-			if strings.ToLower(val) == strings.ToLower("XMLHttpRequest") {
-				return true
-			}
-		}
-	}
-	return false
-}
-func (this *Context) Write(s string) {
-	fmt.Fprintf(this.W,"%s",s)
-}
-func (this *Context) Render(name string) {
-	var ts *template.Template
-	var err error
-	gen := func(s string) string {
-		return Views + s + TemplateExt
-	}
-	name = gen(name)
-	if (NoLayoutForXHR && this.IsXHR()) || len(this.Layout) == 0 {
-		ts,err = template.ParseFiles(name)
-		ts.Parse(`{{template "yield" .}}`)
-	} else {
-		ts, err = template.ParseFiles(gen(this.Layout),name)
-	}
-	if err != nil {
-		log.Printf("error rendering: %s - %s",name,err.Error())
-	}
-	ts.Execute(this.W, this.Output)
-}
-
-func (this *Context) Redirect(url string) {
-	http.Redirect(this.W,this.R,url,302)
-}
-func (this *Context) Error(message string, code int) {
-	http.Error(this.W,message,code)
-}
 
 var routes = map[*regexp.Regexp]func(*Context)(){}
-
+// example: godzilla.Route("/product/show/(\d+)",product_show)
 func Route(pattern string, handler func(*Context)()) {
 	routes[regexp.MustCompile(pattern)]=handler
 }
+
+// starts the http server
+// example: 
+// 		db, _ := sql.Open("sqlite3", "./foo.db")
+// 		defer db.Close()
+// 		session.Init(db,"session")
+// 		session.CookieKey = "go.is.awesome"
+// 		session.CookieDomain = "localhost"
+// 		godzilla.Route("/product/show/(\d+)",product_show)
+// 		godzilla.Start("localhost:8080",db)
+
 func Start(addr string,db *sql.DB) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		s := session.New(w,r)
@@ -89,7 +61,74 @@ func Start(addr string,db *sql.DB) {
 	log.Fatal(http.ListenAndServe(addr, nil))
 }
 
-// POC, bad performance, do not use in production
+// returns true/false if the request is XHR
+// example:
+//		if ctx.IsXHR() {
+//			ctx.Layout = "special-ajax-lajout" 
+//			// or
+//			ctx.Render("ajax")
+//		}
+
+func (this *Context) IsXHR() bool {
+	v,ok := this.R.Header["X-Requested-With"]; 
+	if ok {
+		for _,val := range v {
+			if strings.ToLower(val) == strings.ToLower("XMLHttpRequest") {
+				return true
+			}
+		}
+	}
+	return false
+}
+func (this *Context) Render(name string) {
+	var ts *template.Template
+	var err error
+	gen := func(s string) string {
+		return Views + s + TemplateExt
+	}
+	name = gen(name)
+	if (NoLayoutForXHR && this.IsXHR()) || len(this.Layout) == 0 {
+		ts,err = template.ParseFiles(name)
+		ts.Parse(`{{template "yield" .}}`)
+	} else {
+		ts, err = template.ParseFiles(gen(this.Layout),name)
+	}
+	if err != nil {
+		log.Printf("error rendering: %s - %s",name,err.Error())
+	}
+	ts.Execute(this.W, this.Output)
+}
+
+// shorthand for writing strings into the http writer
+// example:
+//		ctx.Write("luke, i am your father")
+func (this *Context) Write(s string) {
+	fmt.Fprintf(this.W,"%s",s)
+}
+// ctx.Redirect("http://golang.org")
+func (this *Context) Redirect(url string) {
+	http.Redirect(this.W,this.R,url,302)
+}
+// example:
+//		ctx.Error("something very very bad just happened",500)
+//		// or
+//		ctx.Error("something very very bad just happened",http.StatusInternalServerError)
+func (this *Context) Error(message string, code int) {
+	http.Error(this.W,message,code)
+}
+
+// WARNING: POC, bad performance, do not use in production
+// returns slice of map[query_result_fields]query_result_values,
+// so for example table with fields id,data,stamp will return
+// [{id: xx,data: xx, stamp: xx},{id: xx,data: xx,stamp: xx}]
+// example:
+// 		ctx.Output["SessionList"] = ctx.Query("SELECT * FROM session")
+// and then in the template:
+// 	{{range .SessionList}}
+//		id: {{.id}}<br>
+//		data: {{.data}}<br>
+//		stamp: {{.stamp}}
+//	{{end}}
 func (this *Context) Query(query string, args ...interface{}) []map[string]interface{} {
 	var err error
 	r := make([]map[string]interface{},0)
