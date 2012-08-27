@@ -7,8 +7,8 @@ import (
 )
 
 func h(ctx *godzilla.Context) {
-	ctx.Query("SELECT * FROM session")
 	ctx.Output["list"] = []interface{}{"a","b"}
+	ctx.Output["SessionList"] = ctx.Query("SELECT * FROM session")
 	ctx.Render("sample")
 }
 
