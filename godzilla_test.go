@@ -99,8 +99,6 @@ func TestStart(t *testing.T)  {
 	db, _ := sql.Open("sqlite3", "./foo.db")
 	Views = "./v/"
 	os.Mkdir(Views,0770)
-	
-	defer os.Remove("./foo.db")
 	client = &http.Client{}
 	jar := &myjar{} 
 	jar.jar = make(map[string] []*http.Cookie) 
@@ -136,7 +134,7 @@ func TestStart(t *testing.T)  {
 	gen := func(s string) string {
 		return Views + s + TemplateExt
 	}
-	f := []string{gen("layout"),gen("session"),gen("sample"), Views}
+	f := []string{gen("layout"),gen("session"),gen("sample"), Views,"foo.db"}
 	for _, file := range f {
 		err = os.Remove(file)
 		if err != nil {
