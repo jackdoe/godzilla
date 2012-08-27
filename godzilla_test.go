@@ -114,6 +114,7 @@ func expect(t *testing.T,url string, code int,pattern interface{},ajax bool) {
 	}
 }
 func TestStart(t *testing.T)  {
+	cleanup(t)
 	var err error
 	db, _ := sql.Open("sqlite3", "./foo.db")
 	Views = "./v/"
@@ -188,6 +189,11 @@ func TestStart(t *testing.T)  {
 	if found_again == nil { t.Fatalf("couldnt find %s",found["id"])}
 	if found_again["title"] != found["title"] { t.Fatalf("tite field mismatch: %s - %s",found_again["title"],found["title"])}
 
+
+	cleanup(t)
+	stop_server()
+}
+func cleanup(t *testing.T) {
 	gen := func(s string) string {
 		return Views + s + TemplateExt
 	}
@@ -197,8 +203,5 @@ func TestStart(t *testing.T)  {
 		if err != nil {
 			t.Fatalf("%s",err)
 		}
-	}
-
-
-	stop_server()
+	}	
 }
