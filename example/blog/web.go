@@ -17,19 +17,19 @@ func list(ctx *godzilla.Context) {
 	ctx.Output["is_admin"] = is_admin(ctx)
 	ctx.Render("list")
 }
-func find_by_id(ctx *godzilla.Context,id interface{}) ([]map[string]interface{},int) {
-	o := ctx.Query("SELECT * FROM posts WHERE id=? ORDER BY stamp DESC",id)
-	return o,len(o)
-}
 func show(ctx *godzilla.Context) {
 	err := func() {
 		ctx.Error("nothing to do here.. \\o/",404)
+	}
+	find := func(id interface{}) ([]map[string]interface{},int) {
+		o := ctx.Query("SELECT * FROM posts WHERE id=? ORDER BY stamp DESC",id)
+		return o,len(o)
 	}
 	switch ctx.Splat[1] {
 		case "edit","create":
 			if ! is_admin(ctx) { err() ; return }
 			ctx.Output["title"] = ctx.Splat[1]
-			o,l := find_by_id(ctx,ctx.Splat[2]);
+			o,l := find(ctx.Splat[2]);
 			if (ctx.R.Method == "GET") {
 				if (l == 1) { ctx.Output["item"] = o[0] }
 				ctx.Render("form")
@@ -53,7 +53,7 @@ func show(ctx *godzilla.Context) {
 			ctx.DB.Exec("DELETE FROM posts WHERE id=?",ctx.Splat[2])
 			ctx.Redirect("/admin/")
 		default:
-			o,l := find_by_id(ctx,ctx.Splat[1]); 
+			o,l := find(ctx.Splat[1]); 
 			if l != 1 { err() ; return }
 			ctx.Output["title"] = o[0]["title"]
 			ctx.Output["item"] = o[0]
