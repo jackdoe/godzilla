@@ -1,3 +1,12 @@
+just try it out
+
+$ go get github.com/jackdoe/godzilla
+$ git clone https://github.com/jackdoe/godzilla.git && cd godzilla/example/blog && go run web.go
+
+then open http://localhost:8080 and enjoy :) 
+http://localhost:8080/admin/ is for the admin panel (works only if opened from localhost)
+
+--------------------------
 PACKAGE
 
 package godzilla

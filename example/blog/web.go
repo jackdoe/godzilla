@@ -1,6 +1,5 @@
 package main
 import (
-	"github.com/jackdoe/session"
 	"github.com/jackdoe/godzilla"
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
@@ -65,9 +64,7 @@ func main() {
 	db, _ := sql.Open("sqlite3", "./high-preformance-database.db")
 	defer db.Close()
 	db.Exec("CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY,title TEXT NOT NULL,long TEXT NOT NULL,stamp INTEGER)")
-	session.Init(db,"session")
-	session.CookieKey = "go.is.awesome"
-	session.CookieDomain = "localhost"
+	godzilla.EnableSessions = false
 	godzilla.Route("^/$",list)
 	godzilla.Route("^/show/(\\d+)$",show)
 	godzilla.Route("^/admin/$",list)
