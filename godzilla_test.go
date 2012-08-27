@@ -178,14 +178,14 @@ func TestStart(t *testing.T)  {
 	if len(o) != 1 { t.Fatalf("expecting 1 row in the table got: %d",len(o))}
 	id := o[0]["id"]
 	found := ctx.FindById("x",id)
-	if found != nil { t.Fatalf("couldnt find %s",id)}
+	if found == nil { t.Fatalf("couldnt find %s",id)}
 	if found["title"] != u["title"] { t.Fatalf("title field mismatch: %s - %s",found["title"],u["title"])}
 	found["title"] = "yyy"
 
 	err = ctx.Replace("x",found)
 	if err != nil { t.Fatalf("%s",err)}
 	found_again := ctx.FindById("x",found["id"])
-	if found_again != nil { t.Fatalf("couldnt find %s",found["id"])}
+	if found_again == nil { t.Fatalf("couldnt find %s",found["id"])}
 	if found_again["title"] != found["title"] { t.Fatalf("tite field mismatch: %s - %s",found_again["title"],found["title"])}
 
 	gen := func(s string) string {
