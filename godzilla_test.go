@@ -135,7 +135,7 @@ func TestStart(t *testing.T)  {
 	expect(t,URL + "get",200,"^value$",true) 
 	stop_server()
 	err = os.RemoveAll(Views)
-	if err {
+	if err != nil {
 		t.Fatalf("%s",err)
 	}
 }
