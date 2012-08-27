@@ -29,13 +29,15 @@ func show(ctx *godzilla.Context) {
 				ctx.Render("form")
 			} else {
 				values := []interface{}{ctx.R.FormValue("title"),ctx.R.FormValue("long"),time.Now().Unix()}
-				var e error
-				if ctx.Splat[1] == "create" {
-					_,e = ctx.DB.Exec("INSERT INTO posts (title,long,stamp) VALUES(?,?,?)",values...)
-				} else {
-					values = append(values,ctx.Splat[2])
-					_,e = ctx.DB.Exec("REPLACE INTO posts (title,long,stamp,id) VALUES(?,?,?,?)",values...)
-				}
+				u := map[string]interface{}{
+						"title":ctx.R.FormValue("title"),
+						"long":ctx.R.FormValue("long"),
+						"stamp":time.Now().Unix()
+					}
+				if ctx.Splat[1] != "create" {
+					u["id"] = ctx.Splat[2]
+				}	
+				e := ctx.DB.Replace("posts",u)
 				if e != nil {
 					ctx.Write(e.Error())
 				} else {

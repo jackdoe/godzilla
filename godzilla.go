@@ -185,6 +185,19 @@ func (this *Context) FindById(table string, id interface{}) (map[string]interfac
 	}
 	return nil
 } 
-// func (this *Context) Replace(table string,i map[string]interface{}) (bool,error) {
 
-// }
+// POC: bad performance
+func (this *Context) Replace(table string,input map[string]interface{}) (error) {
+	keys := []interface{}{}
+	values := []interface{}{}
+	skeys := []string{}
+	for k,v := range input {
+		keys = append(keys,k)
+		skeys = append(skeys,k)
+		values = append(values,v)
+	}
+
+	q := fmt.Sprintf("REPLACE INTO `%s` (`%s`) VALUES(%s)",table,strings.Join(skeys,","),strings.Repeat("?",len(skeys)))
+	_,e := this.DB.Exec(q,values...)
+	return e
+}
