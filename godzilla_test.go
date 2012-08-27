@@ -168,10 +168,9 @@ func TestStart(t *testing.T)  {
 	db.Exec("CREATE TABLE IF NOT EXISTS x (id INTEGER PRIMARY KEY,title TEXT NOT NULL,long TEXT NOT NULL,stamp INTEGER)")
 	ctx := &Context{nil,nil,*session.SessionObject,db,make(map[string]interface{}),"layout",[]string{}}
 	u := map[string]interface{}{
-		"title": "zzz"
-		"long": "adasdasd"
-		"stamp": 0
-	}
+		"title": "zzz",
+		"long": "adasdasd",
+		"stamp": 0}
 	err = ctx.Replace("x",u)
 	if err != nil { t.Fatalf("%s",err)}
 
