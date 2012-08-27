@@ -171,17 +171,17 @@ func (this *Context) Query(query string, args ...interface{}) []map[string]inter
 	}
 	if (Debug) {
 		log.Printf("extracted %d rows @ %s",len(r),query)
+		log.Printf("ABSOLUTE RETURN: %#v",r)
 	}
 	return r
 }
 
 func (this *Context) FindById(table string, id interface{}) (map[string]interface{}) {
 	o := this.Query("SELECT * FROM `"+table+"` WHERE id=?",id)
-	if len(o) > 1 {
-		return o[1]
+	if len(o) > 0 {
+		return o[0]
 	}
 	return nil
-	// return map[string]interface{}{}
 } 
 // func (this *Context) Replace(table string,i map[string]interface{}) (bool,error) {
 

@@ -18,20 +18,14 @@ func list(ctx *godzilla.Context) {
 	ctx.Render("list")
 }
 func show(ctx *godzilla.Context) {
-	err := func() {
-		ctx.Error("nothing to do here.. \\o/",404)
-	}
-	find := func(id interface{}) ([]map[string]interface{},int) {
-		o := ctx.Query("SELECT * FROM posts WHERE id=? ORDER BY stamp DESC",id)
-		return o,len(o)
-	}
+	err := func() { ctx.Error("nothing to do here.. \\o/",404) }
 	switch ctx.Splat[1] {
 		case "edit","create":
 			if ! is_admin(ctx) { err() }
 			ctx.O["title"] = ctx.Splat[1]
-			o,l := find(ctx.Splat[2]);
+			o := ctx.FindById("posts",ctx.Splat[2]); 
 			if (ctx.R.Method == "GET") {
-				if (l == 1) { ctx.O["item"] = o[0] }
+				if o != nil { ctx.O["item"] = o }
 				ctx.Render("form")
 			} else {
 				values := []interface{}{ctx.R.FormValue("title"),ctx.R.FormValue("long"),time.Now().Unix()}
@@ -55,7 +49,6 @@ func show(ctx *godzilla.Context) {
 		default:
 			o := ctx.FindById("posts",ctx.Splat[1]); 
 			if o == nil { err(); return }
-			// if l != 1 { err() }
 			ctx.O["title"] = o["title"]
 			ctx.O["item"] = o
 			ctx.Render("show")
