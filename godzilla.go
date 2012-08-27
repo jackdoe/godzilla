@@ -57,6 +57,13 @@ func (this *Context) Render(name string) {
 	ts.Execute(this.W, this.Output)
 }
 
+func (this *Context) Redirect(url string) {
+	http.Redirect(this.W,this.R,url,302)
+}
+func (this *Context) Error(message string, code int) {
+	http.Error(this.W,message,code)
+}
+
 var routes = map[*regexp.Regexp]func(*Context)(){}
 
 func Route(pattern string, handler func(*Context)()) {
