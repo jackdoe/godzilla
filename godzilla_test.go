@@ -166,7 +166,7 @@ func TestStart(t *testing.T)  {
 	expect(t,URL + "splat/1234_2345",200,"^1234-2345$",true)
 
 	db.Exec("CREATE TABLE IF NOT EXISTS x (id INTEGER PRIMARY KEY,title TEXT NOT NULL,long TEXT NOT NULL,stamp INTEGER)")
-	ctx := &Context{nil,nil,*session.SessionObject,db,make(map[string]interface{}),"layout",[]string{}}
+	ctx := &Context{nil,nil,nil,db,make(map[string]interface{}),"layout",[]string{}}
 	u := map[string]interface{}{
 		"title": "zzz",
 		"long": "adasdasd",
