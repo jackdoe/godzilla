@@ -1,10 +1,24 @@
 {{define "yield"}}
+	{{ $url := printf "http://localhost:8080/show/%d" .item.id}}
+	<div id="fb-root"></div>
+	<script>(function(d, s, id) {
+	  var js, fjs = d.getElementsByTagName(s)[0];
+	  if (d.getElementById(id)) return;
+	  js = d.createElement(s); js.id = id;
+	  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
+	  fjs.parentNode.insertBefore(js, fjs);
+	}(document, 'script', 'facebook-jssdk'));</script>
+
 	<div class="page-header">
 		<h1>{{.item.title}}</h1>
 		<p>
+			<a href="http://twitter.com/share?url={{$url}}&text={{.item.title}}" target="_blank" rel="nofollow">
+				<img src='https://twitter.com/favicons/favicon.ico'>
+			</a>
 			posted @ {{.item.stamp}}
 			{ <a href='/'>slash home /</a> }
 		</p>
 	</div>
 	<pre>{{.item.long}}</pre>
+	<div class="fb-comments" data-href="{{$url}}" data-num-posts="2" data-width="470"></div>
 {{end}}
