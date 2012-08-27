@@ -7,6 +7,7 @@ import (
 	"strings"
 	"regexp"
 	"text/template"
+	"fmt"
 )
 type Context struct {
 	W http.ResponseWriter
@@ -34,7 +35,9 @@ func (this *Context) IsXHR() bool {
 	}
 	return false
 }
-
+func (this *Context) Write(s string) {
+	fmt.Fprintf(this.W,"%s",s)
+}
 func (this *Context) Render(name string) {
 	var ts *template.Template
 	var err error
@@ -59,7 +62,6 @@ var routes = map[*regexp.Regexp]func(*Context)(){}
 func Route(pattern string, handler func(*Context)()) {
 	routes[regexp.MustCompile(pattern)]=handler
 }
-
 func Start(addr string,db *sql.DB) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		s := session.New(w,r)
