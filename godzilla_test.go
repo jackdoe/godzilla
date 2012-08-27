@@ -199,7 +199,7 @@ func cleanup(t *testing.T) {
 	}
 	f := []string{gen("layout"),gen("session"),gen("sample"), Views,"./foo.db"}
 	for _, file := range f {
-		err = os.Remove(file)
+		err := os.Remove(file)
 		if err != nil {
 			t.Fatalf("%s",err)
 		}
