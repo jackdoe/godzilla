@@ -43,6 +43,9 @@ func errorize(ctx *Context) {
 func blabla(ctx *Context) {
 	ctx.Write("blabla")
 }
+func splat(ctx *Context) {
+	ctx.Write(ctx.Splat[1] + "-" + ctx.Splat[2])
+}
 func sample(ctx *Context) {
 	ctx.Render("sample")
 }
@@ -132,6 +135,7 @@ func TestStart(t *testing.T)  {
 	Route("^/get$",get)	
 	Route("^/redir_to_blabla$",redir_to_blabla)
 	Route("^/errorize$",errorize)
+	Route("^/splat/(\\d+)_(\\d+)$",splat)
 
 	start_server(db)
 	expect(t,URL,404,nil,false)
@@ -159,6 +163,7 @@ func TestStart(t *testing.T)  {
 
 	expect(t,URL + "errorize",500,"^errorize",true) 
 	expect(t,URL + "redir_to_blabla",200,"^blabla$",true) // redirects to /blabla
+	expect(t,URL + "splat/1_2",200,"^1-2$",true) // redirects to /blabla
 	gen := func(s string) string {
 		return Views + s + TemplateExt
 	}
