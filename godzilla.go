@@ -60,7 +60,7 @@ func Route(pattern string, handler func(*Context)()) {
 	routes[regexp.MustCompile(pattern)]=handler
 }
 
-func Start(host string, port string,db *sql.DB) {
+func Start(addr string,db *sql.DB) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		s := session.New(w,r)
 		path := r.URL.Path
@@ -76,8 +76,8 @@ func Start(host string, port string,db *sql.DB) {
 		log.Printf("%s - NOT FOUND",path)
 		http.NotFound(w,r)
 	})
-	log.Printf("started: http://%s:%s/",host,port)
-	log.Fatal(http.ListenAndServe(host + ":" + port, nil))
+	log.Printf("started: http://%s/",host,port)
+	log.Fatal(http.ListenAndServe(addr, nil))
 }
 
 // POC, bad performance, do not use in production
