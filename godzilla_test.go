@@ -134,7 +134,10 @@ func TestStart(t *testing.T)  {
 	expect(t,URL + "set",200,"^value$",true) 
 	expect(t,URL + "get",200,"^value$",true) 
 	stop_server()
-	f := []string{"layout" + TemplateExt, "sample" + TemplateExt, "session" + TemplateExt, Views}
+	gen := func(s string) string {
+		return Views + s + TemplateExt
+	}
+	f := []string{gen("layout"),gen("session"),gen("sample"), Views}
 	for _, file := range f {
 		err = os.Remove(file)
 		if err != nil {
