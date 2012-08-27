@@ -133,7 +133,6 @@ func TestStart(t *testing.T)  {
 	expect(t,URL + "get",200,"",true) // nothins is set yet
 	expect(t,URL + "set",200,"^value$",true) 
 	expect(t,URL + "get",200,"^value$",true) 
-	stop_server()
 	gen := func(s string) string {
 		return Views + s + TemplateExt
 	}
@@ -144,4 +143,5 @@ func TestStart(t *testing.T)  {
 			t.Fatalf("%s",err)
 		}
 	}
+	stop_server()
 }
