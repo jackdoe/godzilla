@@ -12,7 +12,7 @@ type Context struct {
 	W http.ResponseWriter
 	R *http.Request
 	S *session.SessionObject
-	Db *sql.DB
+	DB *sql.DB
 	Output map[string]interface{}
 	Layout string
 	Splat []string
@@ -78,4 +78,3 @@ func Start(host string, port string,db *sql.DB) {
 	log.Printf("started: http://%s:%s/",host,port)
 	log.Fatal(http.ListenAndServe(host + ":" + port, nil))
 }
-
