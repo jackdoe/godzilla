@@ -19,6 +19,7 @@ type Context struct {
 }
 var (
 	Views string = "./v/"
+	NoLayoutForXHR bool = true
 	TemplateExt string = ".html"
 )
 func (this *Context) IsXHR() bool {
@@ -40,7 +41,7 @@ func (this *Context) Render(name string) {
 		return Views + s + TemplateExt
 	}
 	name = gen(name)
-	if this.IsXHR() || len(this.Layout) == 0 {
+	if (NoLayoutForXHR && this.IsXHR()) || len(this.Layout) == 0 {
 		ts,err = template.ParseFiles(name)
 		ts.Parse(`{{template "yield" .}}`)
 	} else {
@@ -66,7 +67,7 @@ func Start(host string, port string,db *sql.DB) {
 		for k, v := range routes {
 			matched := k.FindStringSubmatch(path)
 			if matched != nil {
-				log.Printf("%s @ [%s]",path,k)
+				log.Printf("%s @ /%s/",path,k)
 				v(&Context{w,r,s,db,make(map[string]interface{}),"layout",matched})
 				return
 			}
