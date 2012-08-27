@@ -28,7 +28,7 @@ var (
 
 var routes = map[*regexp.Regexp]func(*Context)(){}
 
-// example: godzilla.Route("/product/show/(\d+)",product_show)
+// example: godzilla.Route("/product/show/(\\d+)",product_show)
 func Route(pattern string, handler func(*Context)()) {
 	routes[regexp.MustCompile(pattern)]=handler
 }
@@ -40,7 +40,7 @@ func Route(pattern string, handler func(*Context)()) {
 // 		session.Init(db,"session")
 // 		session.CookieKey = "go.is.awesome"
 // 		session.CookieDomain = "localhost"
-// 		godzilla.Route("/product/show/(\d+)",product_show)
+// 		godzilla.Route("/product/show/(\\d+)",product_show)
 // 		godzilla.Start("localhost:8080",db)
 func Start(addr string,db *sql.DB) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
