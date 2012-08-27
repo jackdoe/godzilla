@@ -18,13 +18,22 @@ package godzilla
     micro web framework. it is not very generic, but it makes writing small
     apps very fast
 
+CONSTANTS
+
+const (
+    DebugQuery       = 1
+    DebugQueryResult = 2
+)
+
+
 VARIABLES
 
 var (
-    Debug          bool   = false
+    Debug          int    = 0
     Views          string = "./v/"
     NoLayoutForXHR bool   = true
     TemplateExt    string = ".html"
+    EnableSessions bool   = true
 )
 
 
@@ -36,13 +45,13 @@ func Route(pattern string, handler func(*Context))
 func Start(addr string, db *sql.DB)
     starts the http server example:
 
-	db, _ := sql.Open("sqlite3", "./foo.db")
-	defer db.Close()
-	session.Init(db,"session")
-	session.CookieKey = "go.is.awesome"
-	session.CookieDomain = "localhost"
-	godzilla.Route("/product/show/(\\d+)",product_show)
-	godzilla.Start("localhost:8080",db)
+    db, _ := sql.Open("sqlite3", "./foo.db")
+    defer db.Close()
+    session.Init(db,"session")
+    session.CookieKey = "go.is.awesome"
+    session.CookieDomain = "localhost"
+    godzilla.Route("/product/show/(\\d+)",product_show)
+    godzilla.Start("localhost:8080",db)
 
 
 TYPES
@@ -52,7 +61,7 @@ type Context struct {
     R      *http.Request
     S      *session.SessionObject
     DB     *sql.DB
-    Output map[string]interface{}
+    O      map[string]interface{}
     Layout string
     Splat  []string
 }
@@ -60,18 +69,20 @@ type Context struct {
 func (this *Context) Error(message string, code int)
     example:
 
-	ctx.Error("something very very bad just happened",500)
-	// or
-	ctx.Error("something very very bad just happened",http.StatusInternalServerError)
+    ctx.Error("something very very bad just happened",500)
+    // or
+    ctx.Error("something very very bad just happened",http.StatusInternalServerError)
+
+func (this *Context) FindById(table string, id interface{}) map[string]interface{}
 
 func (this *Context) IsXHR() bool
     returns true/false if the request is XHR example:
 
-	if ctx.IsXHR() {
-		ctx.Layout = "special-ajax-lajout"
-		// or
-		ctx.Render("ajax")
-	}
+    if ctx.IsXHR() {
+        ctx.Layout = "special-ajax-lajout"
+        // or
+        ctx.Render("ajax")
+    }
 
 func (this *Context) Query(query string, args ...interface{}) []map[string]interface{}
     WARNING: POC, bad performance, do not use in production.
@@ -80,30 +91,33 @@ func (this *Context) Query(query string, args ...interface{}) []map[string]inter
     example table with fields id,data,stamp will return [{id: xx,data: xx,
     stamp: xx},{id: xx,data: xx,stamp: xx}] example:
 
-	ctx.Output["SessionList"] = ctx.Query("SELECT * FROM session")
+    ctx.O["SessionList"] = ctx.Query("SELECT * FROM session")
 
     and then in the template:
 
-	{{range .SessionList}}
-		id: {{.id}}<br>
-		data: {{.data}}<br>
-		stamp: {{.stamp}}
-	{{end}}
+    {{range .SessionList}}
+        id: {{.id}}<br>
+        data: {{.data}}<br>
+        stamp: {{.stamp}}
+    {{end}}
 
 func (this *Context) Redirect(url string)
     example:
 
-	ctx.Redirect("http://golang.org")
+    ctx.Redirect("http://golang.org")
 
 func (this *Context) Render(name string)
+
+func (this *Context) Replace(table string, input map[string]interface{}) error
+    POC: bad performance
 
 func (this *Context) Write(s string)
     shorthand for writing strings into the http writer example:
 
-	ctx.Write("luke, i am your father")
+    ctx.Write("luke, i am your father")
 
 
 SUBDIRECTORIES
 
-	example
+    example
 
