@@ -191,7 +191,7 @@ func TestStart(t *testing.T)  {
 	gen := func(s string) string {
 		return Views + s + TemplateExt
 	}
-	f := []string{gen("layout"),gen("session"),gen("sample"), Views,"foo.db"}
+	f := []string{gen("layout"),gen("session"),gen("sample"), Views,"./foo.db"}
 	for _, file := range f {
 		err = os.Remove(file)
 		if err != nil {
