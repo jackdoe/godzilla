@@ -164,6 +164,19 @@ func TestStart(t *testing.T)  {
 	expect(t,URL + "errorize",500,"^errorize",true) 
 	expect(t,URL + "redir_to_blabla",200,"^blabla$",true) // redirects to /blabla
 	expect(t,URL + "splat/1234_2345",200,"^1234-2345$",true)
+
+	db.Exec("CREATE TABLE IF NOT EXISTS x (id INTEGER PRIMARY KEY,title TEXT NOT NULL,long TEXT NOT NULL,stamp INTEGER)")
+	ctx := &Context{nil,nil,*session.SessionObject,db,make(map[string]interface{}),"layout",[]string{}}
+	u := map[string]interface{}{
+		"title": "zzz"
+		"long": "adasdasd"
+		"stamp": 0
+	}
+	err = ctx.Replace("x",u)
+	if err != nil { t.Fatalf("%s",err)}
+
+
+
 	gen := func(s string) string {
 		return Views + s + TemplateExt
 	}
@@ -174,5 +187,7 @@ func TestStart(t *testing.T)  {
 			t.Fatalf("%s",err)
 		}
 	}
+
+
 	stop_server()
 }
