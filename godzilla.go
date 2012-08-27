@@ -193,13 +193,14 @@ func (this *Context) Replace(table string,input map[string]interface{}) (error) 
 	skeys := []string{}
 	for k,v := range input {
 		keys = append(keys,k)
-		skeys = append(skeys,k)
+		skeys = append(skeys,"`" + k "`")
 		values = append(values,v)
 	}
 
 	questionmarks := strings.TrimRight(strings.Repeat("?,",len(skeys)),",")
-	q := fmt.Sprintf("REPLACE INTO `%s` (`%s`) VALUES(%s)",table,strings.Join(skeys,"`,`"),questionmarks)
+	q := fmt.Sprintf("REPLACE INTO `%s` (%s) VALUES(%s)",table,strings.Join(skeys,","),questionmarks)
 	if (Debug & DebugQuery) > 0 { log.Printf("%s",q) }
+	if (Debug & DebugQueryResult) > 0 { log.Printf("%s: %#v",q,input) }
 	_,e := this.DB.Exec(q,values...)
 	return e
 }
