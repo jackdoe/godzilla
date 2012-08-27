@@ -163,7 +163,7 @@ func TestStart(t *testing.T)  {
 
 	expect(t,URL + "errorize",500,"^errorize",true) 
 	expect(t,URL + "redir_to_blabla",200,"^blabla$",true) // redirects to /blabla
-	expect(t,URL + "splat/1_2",200,"^1-2$",true) // redirects to /blabla
+	expect(t,URL + "splat/1234_2345",200,"^1234-2345$",true)
 	gen := func(s string) string {
 		return Views + s + TemplateExt
 	}
