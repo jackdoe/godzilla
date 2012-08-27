@@ -1,0 +1,7 @@
+{{define "yield"}}
+	<form action='' METHOD='POST'>
+		<input class="input-xxlarge" placeholder='title' type=text name='title' value='{{if .item.title}}{{.item.title}}{{end}}'><br>
+		<textarea class="input-xxlarge" placeholder='long text' rows='20' name='long'>{{if .item.long}}{{.item.long}}{{end}}</textarea><br>
+		<input class='btn btn-primary' type=submit name='go' value='Save!'>
+	</form>
+{{end}}

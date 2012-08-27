@@ -1,0 +1,10 @@
+{{define "yield"}}
+	<div class="page-header">
+		<h1>{{.item.title}}</h1>
+		<p>
+			posted @ {{.item.stamp}}
+			{ <a href='/'>slash home /</a> }
+		</p>
+	</div>
+	<pre>{{.item.long}}</pre>
+{{end}}

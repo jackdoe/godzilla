@@ -24,6 +24,7 @@ var (
 	Views string = "./v/"
 	NoLayoutForXHR bool = true
 	TemplateExt string = ".html"
+	EnableSessions bool = true
 )
 
 var routes = map[*regexp.Regexp]func(*Context)(){}
@@ -44,7 +45,10 @@ func Route(pattern string, handler func(*Context)()) {
 // 		godzilla.Start("localhost:8080",db)
 func Start(addr string,db *sql.DB) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		s := session.New(w,r)
+		var s *session.SessionObject
+		if EnableSessions {
+			s = session.New(w,r)
+		}
 		path := r.URL.Path
 		w.Header().Set("Content-Type", "text/html")
 		for k, v := range routes {

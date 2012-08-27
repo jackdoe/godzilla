@@ -1,0 +1,26 @@
+{{define "yield"}}
+	<div class="page-header">
+		<h1>{{.title}}</h1>
+		<p>
+			containing {{ len .items }} posts
+		</p>
+	</div>
+	{{ $global := . }}
+	{{range .items}}
+		<blockquote>
+			<p>{{.title}}</p>
+			<small>
+				<a href='/show/{{.id}}'>posted @ {{.stamp}}</a>
+				{{if $global.is_admin}}
+					<a class='btn btn-danger' href='/admin/show/delete/{{.id}}'>delete</a>
+					<a class='btn btn-info' href='/admin/show/edit/{{.id}}'>edit</a>
+				{{end}}				
+			</small>
+		</blockquote>
+	{{end}}
+		{{if $global.is_admin}}
+			<small>
+				<a class='btn btn-danger' href='/admin/show/create/0'>create new post</a>
+			</small>
+		{{end}}
+{{end}}
