@@ -99,7 +99,7 @@ func TestStart(t *testing.T)  {
 	db, _ := sql.Open("sqlite3", "./foo.db")
 	Views = "./v/"
 	os.Mkdir(Views,0770)
-	defer os.RemoveAll(Views)
+	
 	defer os.Remove("./foo.db")
 	client = &http.Client{}
 	jar := &myjar{} 
@@ -134,4 +134,8 @@ func TestStart(t *testing.T)  {
 	expect(t,URL + "set",200,"^value$",true) 
 	expect(t,URL + "get",200,"^value$",true) 
 	stop_server()
+	err = os.RemoveAll(Views)
+	if err {
+		t.Fatalf("%s",err)
+	}
 }
