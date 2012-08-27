@@ -188,9 +188,10 @@ func TestStart(t *testing.T)  {
 	found_again := ctx.FindById("x",found["id"])
 	if found_again == nil { t.Fatalf("couldnt find %s",found["id"])}
 	if found_again["title"] != found["title"] { t.Fatalf("tite field mismatch: %s - %s",found_again["title"],found["title"])}
-	found["stamp"] = "ssss"
-	err = ctx.Replace("x",found)
-	if err == nil { t.Fatalf("expected error when updating int with string %#v",ctx.FindById("x",found["id"]))}
+	// sqlite does not care for type swap
+	// found["stamp"] = "ssss"
+	// err = ctx.Replace("x",found)
+	// if err == nil { t.Fatalf("expected error when updating int with string %#v",ctx.FindById("x",found["id"]))}
 
 	cleanup()
 	stop_server()
