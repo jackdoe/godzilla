@@ -177,10 +177,11 @@ func (this *Context) Query(query string, args ...interface{}) []map[string]inter
 
 func (this *Context) FindById(table string, id interface{}) (map[string]interface{}) {
 	o := this.Query("SELECT * FROM `"+table+"` WHERE id=?",id)
-	if len(o) > 0 {
-		return o[0]
-	} 
-	return map[string]interface{}{}
+	if len(o) > 1 {
+		return o[1]
+	}
+	return nil
+	// return map[string]interface{}{}
 } 
 // func (this *Context) Replace(table string,i map[string]interface{}) (bool,error) {
 

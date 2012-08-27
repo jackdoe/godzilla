@@ -53,10 +53,11 @@ func show(ctx *godzilla.Context) {
 			ctx.DB.Exec("DELETE FROM posts WHERE id=?",ctx.Splat[2])
 			ctx.Redirect("/admin/")
 		default:
-			o,l := find(ctx.Splat[1]); 
-			if l != 1 { err() }
-			ctx.O["title"] = o[0]["title"]
-			ctx.O["item"] = o[0]
+			o := ctx.FindById("posts",ctx.Splat[1]); 
+			if o == nil { err(); return }
+			// if l != 1 { err() }
+			ctx.O["title"] = o["title"]
+			ctx.O["item"] = o
 			ctx.Render("show")
 	}
 }
