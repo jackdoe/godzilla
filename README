@@ -20,6 +20,15 @@ func Route(pattern string, handler func(*Context))
     example: godzilla.Route("/product/show/(\d+)",product_show)
 
 func Start(addr string, db *sql.DB)
+    starts the http server example:
+
+	db, _ := sql.Open("sqlite3", "./foo.db")
+	defer db.Close()
+	session.Init(db,"session")
+	session.CookieKey = "go.is.awesome"
+	session.CookieDomain = "localhost"
+	godzilla.Route("/product/show/(\d+)",product_show)
+	godzilla.Start("localhost:8080",db)
 
 
 TYPES
@@ -42,6 +51,13 @@ func (this *Context) Error(message string, code int)
 	ctx.Error("something very very bad just happened",http.StatusInternalServerError)
 
 func (this *Context) IsXHR() bool
+    returns true/false if the request is XHR example:
+
+	if ctx.IsXHR() {
+		ctx.Layout = "special-ajax-lajout"
+		// or
+		ctx.Render("ajax")
+	}
 
 func (this *Context) Query(query string, args ...interface{}) []map[string]interface{}
     WARNING: POC, bad performance, do not use in production.
