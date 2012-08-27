@@ -175,7 +175,7 @@ func TestStart(t *testing.T)  {
 	if err != nil { t.Fatalf("%s",err)}
 	o := ctx.Query("SELECT * FROM x")
 
-	if len(o) != 1 { t.Fatalf("expecting 1 row in the table got: %d",len(o))}
+	if len(o) != 1 { t.Fatalf("expecting 1 row in the table got: %d - %#v",len(o),o)}
 	id := o[0]["id"]
 	found := ctx.FindById("x",id)
 	if found == nil { t.Fatalf("couldnt find %s",id)}
