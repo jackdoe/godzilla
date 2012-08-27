@@ -67,7 +67,7 @@ func Start(host string, port string,db *sql.DB) {
 		for k, v := range routes {
 			matched := k.FindStringSubmatch(path)
 			if matched != nil {
-				log.Printf("%s @ /%s/",path,k)
+				log.Printf("%s @ %%r{%s}",path,k)
 				v(&Context{w,r,s,db,make(map[string]interface{}),"layout",matched})
 				return
 			}

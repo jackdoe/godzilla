@@ -18,5 +18,6 @@ func main() {
 	session.CookieKey = "go.is.awesome"
 	session.CookieDomain = "localhost"
 	godzilla.Route("^/(sample)/(.*)$",h)
+	godzilla.Route("^/event/(create|edit|delete)/(.*)?$",h)
 	godzilla.Start("localhost","8080",db)
 }
