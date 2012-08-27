@@ -56,6 +56,14 @@ func get(ctx *Context) {
 	ctx.Render("session")
 }
 
+func clear(ctx *Context) {
+	ctx.S.Set("key",nil)
+	x,ok := ctx.S.Get("key"); if ok {
+		ctx.Output["key"] = x
+	}
+	ctx.Render("session")
+}
+
 func start_server(db *sql.DB) {
 	go func() {
 		Start(addr,db)
@@ -112,6 +120,7 @@ func TestStart(t *testing.T)  {
 	Route("^/sample$",sample)
 	Route("^/sample_force_no_layout$",sample_force_no_layout)
 	Route("^/set$",set)
+	Route("^/clear$",set)
 	Route("^/get$",get)	
 	start_server(db)
 	expect(t,URL,404,nil,false)
@@ -131,6 +140,12 @@ func TestStart(t *testing.T)  {
 	expect(t,URL + "get",200,"",true) // nothins is set yet
 	expect(t,URL + "set",200,"^value$",true) 
 	expect(t,URL + "get",200,"^value$",true) 
+
+	expect(t,URL + "clear",200,"",true)
+	expect(t,URL + "get",200,"",true) // nothins is set yet
+	expect(t,URL + "set",200,"^value$",true) 
+	expect(t,URL + "get",200,"^value$",true) 
+
 	gen := func(s string) string {
 		return Views + s + TemplateExt
 	}
