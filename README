@@ -61,7 +61,9 @@ func (this *Context) Query(query string, args ...interface{}) []map[string]inter
 	{{end}}
 
 func (this *Context) Redirect(url string)
-    ctx.Redirect("http://golang.org")
+    example:
+
+	ctx.Redirect("http://golang.org")
 
 func (this *Context) Render(name string)
 
