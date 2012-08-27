@@ -21,7 +21,7 @@ func show(ctx *godzilla.Context) {
 	err := func() { ctx.Error("nothing to do here.. \\o/",404) }
 	switch ctx.Splat[1] {
 		case "edit","create":
-			if ! is_admin(ctx) { err() }
+			if ! is_admin(ctx) { err(); return }
 			ctx.O["title"] = ctx.Splat[1]
 			o := ctx.FindById("posts",ctx.Splat[2]); 
 			if (ctx.R.Method == "GET") {
