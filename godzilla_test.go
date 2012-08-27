@@ -134,8 +134,11 @@ func TestStart(t *testing.T)  {
 	expect(t,URL + "set",200,"^value$",true) 
 	expect(t,URL + "get",200,"^value$",true) 
 	stop_server()
-	err = os.RemoveAll(Views)
-	if err != nil {
-		t.Fatalf("%s",err)
+	f := []string{"layout" + TemplateExt, "sample" + TemplateExt, "session" + TemplateExt, Views}
+	for _, file := range f {
+		err = os.Remove(file)
+		if err != nil {
+			t.Fatalf("%s",err)
+		}
 	}
 }
