@@ -28,7 +28,6 @@ func show(ctx *godzilla.Context) {
 				if o != nil { ctx.O["item"] = o }
 				ctx.Render("form")
 			} else {
-				u := ctx.Params
 				ctx.Params["stamp"] = time.Now().Unix()
 				if ctx.Splat[1] != "create" {
 					ctx.Params["id"] = ctx.Splat[2]
