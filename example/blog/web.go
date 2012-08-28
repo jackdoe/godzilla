@@ -28,14 +28,12 @@ func show(ctx *godzilla.Context) {
 				if o != nil { ctx.O["item"] = o }
 				ctx.Render("form")
 			} else {
-				u := map[string]interface{}{
-						"title":ctx.R.FormValue("title"),
-						"long":ctx.R.FormValue("long"),
-						"stamp":time.Now().Unix()}
+				u := ctx.Params
+				ctx.Params["stamp"] = time.Now().Unix()
 				if ctx.Splat[1] != "create" {
-					u["id"] = ctx.Splat[2]
+					ctx.Params["id"] = ctx.Splat[2]
 				}	
-				e := ctx.Replace("posts",u)
+				e := ctx.Replace("posts",ctx.Params)
 				if e != nil {
 					ctx.Write(e.Error())
 				} else {

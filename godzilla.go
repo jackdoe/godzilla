@@ -18,6 +18,7 @@ type Context struct {
 	O map[string]interface{}
 	Layout string
 	Splat []string
+	Params map[string]interface{}
 }
 const (
 	DebugQuery = 1
@@ -59,7 +60,14 @@ func Start(addr string,db *sql.DB) {
 			matched := k.FindStringSubmatch(path)
 			if matched != nil {
 				log.Printf("%s @ %%r{%s}",path,k)
-				v(&Context{w,r,s,db,make(map[string]interface{}),"layout",matched})
+				params := map[string]interface{}{}
+				r.ParseForm()
+				if len(r.Form) > 0 {
+					for k, v := range r.Form {
+						params[k] = v[0]
+					}
+				}
+				v(&Context{w,r,s,db,map[string]interface{}{},"layout",matched,params})
 				return
 			}
 		}
