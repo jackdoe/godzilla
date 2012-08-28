@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"strconv"
 	"reflect"
-	"log"
 )
 func is_admin(ctx *godzilla.Context) (bool) {
 	ip,_ := regexp.Match("^127\\.0\\.0\\.1:",[]byte(ctx.R.RemoteAddr))
@@ -16,7 +15,6 @@ func is_admin(ctx *godzilla.Context) (bool) {
 	return (ip && uri)
 }
 func list(ctx *godzilla.Context) {
-
 	ctx.O["title"] = "godzilla blog!"
 	ctx.O["categories"] = ctx.Query("SELECT * FROM categories ORDER BY name")
 	ctx.O["selected"],_ = strconv.ParseInt(reflect.ValueOf(ctx.Params["category"]).String(),10,64)
@@ -33,7 +31,7 @@ func modify(ctx *godzilla.Context) {
 
 	object_id := ctx.Splat[2]
 	object_type := ctx.Splat[1]
-	if object_type != "posts" && object_type != "categories" {
+	if object_type != "posts" && object_type != "categories" && object_type != "post_category" {
 		ctx.Error("bad object type",500); return
 	}
 	var output interface{}
@@ -42,10 +40,6 @@ func modify(ctx *godzilla.Context) {
 	if j == nil {
 		j = map[string]interface{}{}
 	}
-	if e != nil {
-		log.Printf("%s",e.Error())
-	}
-	log.Printf("%#v",j)
 	switch ctx.R.Method {
 		case "PATCH":
 			output = ctx.Query("SELECT a.* FROM categories a, post_category b WHERE a.id = b.category_id AND b.post_id=?",object_id)
@@ -79,7 +73,7 @@ func show(ctx *godzilla.Context) {
 func main() {
 	db, _ := sql.Open("sqlite3", "./high-preformance-database.db")
 	defer db.Close()
-	db.Exec("CREATE TABLE IF NOT EXISTS post_category (post_id BIGINT NOT NULL,category_id TEXT NOT NULL,CONSTRAINT uc_post_category UNIQUE (post_id,category_id))")
+	db.Exec("CREATE TABLE IF NOT EXISTS post_category (id INTEGER PRIMARY KEY,post_id BIGINT NOT NULL,category_id BIGINT NOT NULL,created_at INTEGER,updated_at INTEGER,CONSTRAINT uc_post_category UNIQUE (post_id,category_id))")
 	db.Exec("CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY,title TEXT NOT NULL,long TEXT NOT NULL,created_at INTEGER,updated_at INTEGER)")
 	db.Exec("CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY,name TEXT NOT NULL UNIQUE,created_at INTEGER,updated_at INTEGER)")
 
@@ -87,8 +81,7 @@ func main() {
 	godzilla.Debug = (godzilla.DebugQuery)
 	godzilla.Route("^/$",list)
 	godzilla.Route("^/show/(\\d+)$",show)
-	godzilla.Route("^/admin/modify/(posts|categories)/(\\d+)$",modify)
+	godzilla.Route("^/admin/modify/(posts|categories|post_category)/(\\d+)$",modify)
 	godzilla.Route("^/admin/$",list)
-	godzilla.Route("^/admin/show/(edit|delete|create)/(\\d+)$",show)
 	godzilla.Start("localhost:8080",db)
 }
