@@ -143,7 +143,7 @@ func TestStart(t *testing.T)  {
 	expect(t,URL + "blabla",200,"blabla",false)
 
 	/* create 2 simple templates */
-	err = ioutil.WriteFile(Views + "layout" + TemplateExt, []byte(`<body>{{template "yield" .}}</body>`), 0644)
+	err = ioutil.WriteFile(Views + "layout" + TemplateExt, []byte(`{{define "layout"}}<body>{{template "yield" .}}</body>{{end}}`), 0644)
 	if err != nil { t.Fatalf("%s",err)}
 	err = ioutil.WriteFile(Views + "sample" + TemplateExt, []byte(`{{define "yield"}}sample{{end}}`), 0644)
 	if err != nil { t.Fatalf("%s",err)}

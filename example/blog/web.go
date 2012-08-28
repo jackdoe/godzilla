@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"time"
 	"encoding/json"
+	"strings"
 )
 func is_admin(ctx *godzilla.Context) (bool) {
 	ip,_ := regexp.Match("^127\\.0\\.0\\.1:",[]byte(ctx.R.RemoteAddr))
@@ -13,6 +14,7 @@ func is_admin(ctx *godzilla.Context) (bool) {
 	return (ip && uri)
 }
 func list(ctx *godzilla.Context) {
+
 	ctx.O["title"] = "godzilla blog!"
 	ctx.O["categories"] = ctx.Query("SELECT * FROM categories ORDER BY name")
 	_,ok := ctx.Params["category"]; if ok {

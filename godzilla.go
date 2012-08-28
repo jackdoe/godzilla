@@ -118,15 +118,15 @@ func (this *Context) Render(name string) {
 		return Views + s
 	}
 	name = gen(name)
-	ts := template.New("main")
+	ts := template.New("ROOT")
 	ts.Funcs(template.FuncMap{"eq": reflect.DeepEqual})
 	if (NoLayoutForXHR && this.IsXHR()) || len(this.Layout) == 0 {
 		ts = template.Must(ts.ParseFiles(name))
-		ts.Parse(`{{template "yield" .}}`)
+		ts.Parse(`{{define "layout"}}{{template "yield" .}}{{end}}`)
 	} else {
 		ts = template.Must(ts.ParseFiles(gen(this.Layout),name))
-	}	
-	ts.Execute(this.W, this.O)
+	}
+	ts.ExecuteTemplate(this.W, "layout",this.O)
 }
 
 // shorthand for writing strings into the http writer
