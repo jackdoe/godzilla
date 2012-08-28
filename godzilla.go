@@ -112,7 +112,11 @@ func (this *Context) IsXHR() bool {
 // example
 //	ctx.Render("show") // -> ./v/show.html (Views + "show" + ".html")
 //	ctx.Render("/tmp/show") // -> /tmp/show.html ("/tmp/show" + ".html")
-func (this *Context) Render(name string) {
+func (this *Context) Render(extra ...string) {
+	layout := ((NoLayoutForXHR && this.IsXHR()) || len(this.Layout) == 0)
+	var ROOT string
+	templates := []string{}	
+	
 	gen := func(s string) string {
 		s += TemplateExt
 		if strings.Contains(s,"/") {
@@ -120,16 +124,19 @@ func (this *Context) Render(name string) {
 		}
 		return Views + s
 	}
-	name = gen(name)
+	if !layout {
+		ROOT = "yield"
+	} else {
+		ROOT = "layout"
+		templates = append(templates,"layout")
+	}
+	for _,v := range extra {
+		templates = append(templates,gen(v))
+	}
 	ts := template.New("ROOT")
 	ts.Funcs(template.FuncMap{"eq": reflect.DeepEqual})
-	if (NoLayoutForXHR && this.IsXHR()) || len(this.Layout) == 0 {
-		ts = template.Must(ts.ParseFiles(name))
-		ts.Parse(`{{define "layout"}}{{template "yield" .}}{{end}}`)
-	} else {
-		ts = template.Must(ts.ParseFiles(gen(this.Layout),name))
-	}
-	ts.ExecuteTemplate(this.W, "layout",this.O)
+	ts = template.Must(ts.ParseFiles(templates...))
+	ts.ExecuteTemplate(this.W, ROOT,this.O)
 }
 
 // shorthand for writing strings into the http writer
@@ -216,14 +223,17 @@ func (this *Context) FindById(table string, id interface{}) (map[string]interfac
 } 
 
 // POC: bad performance
+// updates database fields based on map's keys - every key that begins with _ is skipped
 func (this *Context) Replace(table string,input map[string]interface{}) (int64,error) {
 	keys := []interface{}{}
 	values := []interface{}{}
 	skeys := []string{}
 	for k,v := range input {
-		keys = append(keys,k)
-		skeys = append(skeys,"`" + k + "`")
-		values = append(values,v)
+		if len(k) > 0 && k[0] != '_' {
+			keys = append(keys,k)
+			skeys = append(skeys,"`" + k + "`")
+			values = append(values,v)
+		}
 	}
 
 	questionmarks := strings.TrimRight(strings.Repeat("?,",len(skeys)),",")
@@ -231,6 +241,7 @@ func (this *Context) Replace(table string,input map[string]interface{}) (int64,e
 	if (Debug & DebugQuery) > 0 { log.Printf("%s",q) }
 	if (Debug & DebugQueryResult) > 0 { log.Printf("%s: %#v",q,input) }
 	res,e := this.DB.Exec(q,values...)
+	if e != nil && (Debug & DebugQuery) > 0 { log.Printf("%s: %s",q,e.Error()) }
 	last_id := int64(0)
 	if res != nil {
 		last_id,_ = res.LastInsertId()
