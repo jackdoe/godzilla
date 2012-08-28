@@ -21,43 +21,48 @@ func list(ctx *godzilla.Context) {
 	ctx.O["categories"] = ctx.Query("SELECT * FROM categories ORDER BY name")
 	ctx.O["selected"],_ = strconv.ParseInt(reflect.ValueOf(ctx.Params["category"]).String(),10,64)
 	_,ok := ctx.Params["category"]; if ok {
-		ctx.O["items"] = ctx.Query("SELECT a.* FROM posts a, post_category b WHERE a.id = b.post_id AND b.category_id=? ORDER BY stamp DESC",ctx.Params["category"])
+		ctx.O["items"] = ctx.Query("SELECT a.* FROM posts a, post_category b WHERE a.id = b.post_id AND b.category_id=? ORDER BY created_at DESC",ctx.Params["category"])
 	} else {
-		ctx.O["items"] = ctx.Query("SELECT * FROM posts ORDER BY stamp DESC")
+		ctx.O["items"] = ctx.Query("SELECT * FROM posts ORDER BY created_at DESC")
 	}
 	ctx.O["is_admin"] = is_admin(ctx)
 	ctx.Render("list")
 }
 func modify(ctx *godzilla.Context) {
 	if ! is_admin(ctx) { ctx.Error("not allowed",404); return }
-	log.Printf("%#v",ctx.Params)
+
 	object_id := ctx.Splat[2]
 	object_type := ctx.Splat[1]
-	if object_type != "posts" || object_type != "categories" {
-		ctx.Error("bad object type",500)
-		return
+	if object_type != "posts" && object_type != "categories" {
+		ctx.Error("bad object type",500); return
 	}
 	var output interface{}
+	var j map[string]interface{}
+	e := json.Unmarshal([]byte(ctx.Sparams["json"]),&j)
+	if j == nil {
+		j = map[string]interface{}{}
+	}
+	if e != nil {
+		log.Printf("%s",e.Error())
+	}
+	log.Printf("%#v",j)
 	switch ctx.R.Method {
+		case "PATCH":
+			output = ctx.Query("SELECT a.* FROM categories a, post_category b WHERE a.id = b.category_id AND b.post_id=?",object_id)
 		case "GET":
 			output = ctx.FindById(object_type,object_id)
-		case "POST","PUT":
-			var u map[string]interface{}
-			if object_type == "categories" {
-				u = map[string]interface{}{"name":ctx.Params["title"]}
-			} else {
-				u = map[string]interface{}{"title":ctx.Params["title"],"long":ctx.Params["long"],"stamp":time.Now().Unix()}
+		case "POST":
+			if j["id"] == nil {
+				j["created_at"] = time.Now().Unix()
 			}
-			if ctx.R.Method == "PUT" {
-				u["id"] = ctx.Splat[1]
-			}
-			id,_ := ctx.Replace(object_type,u)
+			j["updated_at"] = time.Now().Unix()
+			id,_ := ctx.Replace(object_type,j)
 			output = ctx.FindById(object_type,id)
 		case "DELETE":
 			ctx.DeleteId(object_type,object_id)
 			output = "deleted " + object_id + "@" + object_type
 		case "OPTIONS":
-			output = ctx.Query("SELECT * FROM `" + object_type+ "` a ORDER BY name")
+			output = ctx.Query("SELECT * FROM `" + object_type+ "`")//; ORDER BY created_at,updated_at")
 	}
 	b,e := json.Marshal(output)
 	if e != nil { b = []byte(e.Error()) }
@@ -65,45 +70,18 @@ func modify(ctx *godzilla.Context) {
 	ctx.W.Write(b)
 }
 func show(ctx *godzilla.Context) {
-	err := func() { ctx.Error("nothing to do here.. \\o/",404) }
-	switch ctx.Splat[1] {
-		case "edit","create":
-			if ! is_admin(ctx) { err(); return }
-			u := map[string]interface{}{"title":ctx.Params["title"],"long":ctx.Params["long"],"stamp":time.Now().Unix()}
-			ctx.O["title"] = ctx.Splat[1]
-			o := ctx.FindById("posts",ctx.Splat[2]); 
-			if (ctx.R.Method == "GET") {
-				if o != nil { ctx.O["item"] = o }
-				ctx.Render("form")
-			} else {
-				if ctx.Splat[1] != "create" {
-					u["id"] = ctx.Splat[2]
-				}	
-				_,e := ctx.Replace("posts",u)
-				if e != nil {
-					ctx.Write(e.Error())
-				} else {
-					ctx.Redirect("/admin/")
-				}
-			}
-		case "delete":
-			if ! is_admin(ctx) { err() ; return }
-			ctx.DB.Exec("DELETE FROM posts WHERE id=?",ctx.Splat[2])
-			ctx.Redirect("/admin/")
-		default:
-			o := ctx.FindById("posts",ctx.Splat[1]); 
-			if o == nil { err(); return }
-			ctx.O["title"] = o["title"]
-			ctx.O["item"] = o
-			ctx.Render("show")
-	}
+	o := ctx.FindById("posts",ctx.Splat[1]); 
+	if o == nil { ctx.Error("nothing to do here.. \\o/",404); return }
+	ctx.O["title"] = o["title"]
+	ctx.O["item"] = o
+	ctx.Render("show")
 }
 func main() {
 	db, _ := sql.Open("sqlite3", "./high-preformance-database.db")
 	defer db.Close()
-	db.Exec("CREATE TABLE IF NOT EXISTS post_category (id INTEGER PRIMARY KEY,post_id BIGINT NOT NULL,category_id TEXT NOT NULL)")
-	db.Exec("CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY,title TEXT NOT NULL,long TEXT NOT NULL,stamp INTEGER)")
-	db.Exec("CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY,name TEXT NOT NULL UNIQUE)")
+	db.Exec("CREATE TABLE IF NOT EXISTS post_category (post_id BIGINT NOT NULL,category_id TEXT NOT NULL,CONSTRAINT uc_post_category UNIQUE (post_id,category_id))")
+	db.Exec("CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY,title TEXT NOT NULL,long TEXT NOT NULL,created_at INTEGER,updated_at INTEGER)")
+	db.Exec("CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY,name TEXT NOT NULL UNIQUE,created_at INTEGER,updated_at INTEGER)")
 
 	godzilla.EnableSessions = false
 	godzilla.Debug = (godzilla.DebugQuery)

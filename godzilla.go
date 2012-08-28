@@ -135,6 +135,7 @@ func (this *Context) Render(extra ...string) {
 	}
 	ts := template.New("ROOT")
 	ts.Funcs(template.FuncMap{"eq": reflect.DeepEqual})
+	log.Printf("%#v",templates)
 	ts = template.Must(ts.ParseFiles(templates...))
 	ts.ExecuteTemplate(this.W, ROOT,this.O)
 }

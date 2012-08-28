@@ -6,30 +6,105 @@
 			containing {{ len .items }} posts
 		</p>
 	</div>
-	<blockquote class="pull-right categories">
-		{{range .categories}}
-			<p class="category" id="{{.id}}">
-				{{if eq .id $global.selected}}<strong>{{end}}
-				{{.name}}
-				{{if eq .id $global.selected}}</strong>{{end}}
+		<blockquote class="pull-right categories">
+			<p>
+				<a href="/">unite-the-clans</a>
 			</p>
-		{{end}}
-	</blockquote>
+			{{range .categories}}
+				<p>
+						<a href="?category={{.id}}">
+							{{.name}}
+						</a>
+					<a class='btn btn-mini btn-notice edit' data-type="categories" data-id="{{.id}}" href='javascript:;'>
+						edit
+					</a>
+				</p>
+			{{end}}
+			<p>
+				<a class='btn btn-mini btn-notice edit' data-type="categories" href='javascript:;'>create</a>
+			</p>
+		</blockquote>
+
 	{{range .items}}
 		<blockquote>
-			<p>{{.title}}</p>
+			<p class="title">{{.title}}</p>
 			<small>
-				<a href='/show/{{.id}}'>posted @ {{.stamp}}</a>
-				{{if $global.is_admin}}
-					<a class='btn btn-danger' href='/admin/show/delete/{{.id}}'>delete</a>
-					<a class='btn btn-info' href='/admin/show/edit/{{.id}}'>edit</a>
-				{{end}}				
+				<a href='/show/{{.id}}'>posted @ c/u: {{.created_at}} | {{.updated_at}}</a>
 			</small>
+			<a class='btn btn-danger delete' href='javascript:;'>delete</a>
+			<a class='btn btn-info edit' data-type="posts" data-id="{{.id}}" href='javascript:;'>edit</a>
 		</blockquote>
 	{{end}}
 	{{if $global.is_admin}}
 		<small>
-			<a class='btn btn-danger' href='/admin/show/create/0'>create new post</a>
+			<a class='btn btn-danger edit' href='/admin/show/create/0'>create new post</a>
 		</small>
 	{{end}}
+	<script>
+		function get(method, url, callback, input) {
+			var reformat = function(array){
+				var obj = {};
+				for(i=0; i<array.length; i++){
+					var a = array[i];
+					var name = a.name;
+					var value = a.value;
+					obj[name] = value;
+				}
+				return obj;
+			};
+			input = (input || {})
+			input = reformat(input)
+			$.ajax({
+				type: method,
+				url: url,
+				data: "json=" + JSON.stringify(input),
+				success: callback
+			});
+		}
+		var categories
+		var selected 
+		get('OPTIONS',"/admin/modify/categories/0",function(data) {
+			categories = data
+		})
+
+		$('.edit').click(function(e) {
+			t = $(this).data('type')
+			id = $(this).data('id')
+			s = $(this).parent()
+			$.get("/admin/modify/" + t + "/" + (id || "0") ,function(data) {
+				console.log(data)
+				data = (data || {})
+				data["id"] = id
+				data["_type"] = t
+				if (t == "posts") {
+					s.html(_.template(
+						"<form>" +
+						"<% if (data.id) { %><input type=hidden name='id' value='<%= data.id %>'><% } %>"+
+						"<input class='input-xxlarge' placeholder='title' type=text name='title' value='<%= data.title %>'><br>" +
+						"<textarea class='input-xxlarge' placeholder='long text' rows='20' name='long'><%= data.long %></textarea><br>"+
+						"<input class='btn btn-primary save' type='button' name='_go' value='Save!' data-type='<%= data._type %>'>" +
+						"</form>"
+						,{data: data})
+					)
+				} else {
+					s.html(_.template(
+						"<form>" +
+						"<% if (data.id) { %><input type=hidden name='id' value='<%= data.id %>'><% } %>"+
+						"<input class='input-xxlarge' placeholder='name' type=text name='name' value='<%= data.name %>'><br>" +
+						"<input class='btn btn-primary save' type='button' name='_go' value='Save!' data-type='<%= data._type %>'>" +
+						"</form>"
+						,{data: data})
+				}
+			})
+			return false
+		})
+		$('.save').live('click',function(e){
+			console.log($(this).parent().serializeArray())
+			get('POST',"/admin/modify/" + $(this).data('type') + "/0",function(data) {
+				console.log(data)
+			},$(this).parent().serializeArray())
+			location.reload();
+			return false
+		})
+	</script>
 {{end}}
