@@ -18,10 +18,20 @@ func list(ctx *godzilla.Context) {
 	ctx.O["title"] = "godzilla blog!"
 	ctx.O["categories"] = ctx.Query("SELECT * FROM categories ORDER BY name")
 	ctx.O["selected"],_ = strconv.ParseInt(reflect.ValueOf(ctx.Params["category"]).String(),10,64)
+	link := map[int64][]map[string]interface{}{}
+	x := ctx.Query("SELECT b.id AS link_id, b.category_id AS cid, b.post_id AS pid,a.name as category FROM categories a,post_category b WHERE a.id=b.category_id")
+	for _,v := range x {
+		key := reflect.ValueOf(v["pid"]).Int()
+		if link[key] == nil {
+			link[key] = make([]map[string]interface{},0)
+		} 
+		link[key] = append(link[key],v)
+	}
+	ctx.O["link"] = link
 	_,ok := ctx.Params["category"]; if ok {
-		ctx.O["items"] = ctx.Query("SELECT a.* FROM posts a, post_category b WHERE a.id = b.post_id AND b.category_id=? ORDER BY created_at DESC",ctx.Params["category"])
+		ctx.O["items"] = ctx.Query("SELECT a.*,(strftime('%s', 'now') - a.created_at) as ago FROM posts a, post_category b WHERE a.id = b.post_id AND b.category_id=? ORDER BY a.created_at DESC",ctx.Params["category"])
 	} else {
-		ctx.O["items"] = ctx.Query("SELECT * FROM posts ORDER BY created_at DESC")
+		ctx.O["items"] = ctx.Query("SELECT *,(strftime('%s', 'now') - created_at) as ago FROM posts ORDER BY created_at DESC")
 	}
 	ctx.O["is_admin"] = is_admin(ctx)
 	ctx.Render("list")
