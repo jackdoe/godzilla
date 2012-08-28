@@ -113,7 +113,6 @@ func (this *Context) IsXHR() bool {
 //	ctx.Render("show") // -> ./v/show.html (Views + "show" + ".html")
 //	ctx.Render("/tmp/show") // -> /tmp/show.html ("/tmp/show" + ".html")
 func (this *Context) Render(extra ...string) {
-	layout := ((NoLayoutForXHR && this.IsXHR()) || len(this.Layout) == 0)
 	var ROOT string
 	templates := []string{}	
 
@@ -124,7 +123,7 @@ func (this *Context) Render(extra ...string) {
 		}
 		return Views + s
 	}
-	if !layout {
+	if (NoLayoutForXHR && this.IsXHR()) || len(this.Layout) == 0 {
 		ROOT = "yield"
 	} else {
 		ROOT = "layout"
