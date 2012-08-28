@@ -118,19 +118,14 @@ func (this *Context) Render(name string) {
 		return Views + s
 	}
 	name = gen(name)
-	var err error
 	ts := template.New("main")
 	ts.Funcs(template.FuncMap{"eq": reflect.DeepEqual})
 	if (NoLayoutForXHR && this.IsXHR()) || len(this.Layout) == 0 {
-		ts,err = template.ParseFiles(name)
+		ts = template.Must(ts.ParseFiles(name))
 		ts.Parse(`{{template "yield" .}}`)
 	} else {
-		ts, err = template.ParseFiles(gen(this.Layout),name)
-	}
-	if err != nil {
-		log.Printf("error rendering: %s - %s",name,err.Error())
-	}
-	
+		ts = template.Must(ts.ParseFiles(gen(this.Layout),name))
+	}	
 	ts.Execute(this.W, this.O)
 }
 
