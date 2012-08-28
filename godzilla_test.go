@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"reflect"
 	"net/url"
+	"strconv"
 )
 
 
@@ -173,22 +174,25 @@ func TestStart(t *testing.T)  {
 		"title": "zzz",
 		"long": "adasdasd",
 		"stamp": 0}
-	err = ctx.Replace("x",u)
+	last_id,err := ctx.Replace("x",u)
 	if err != nil { t.Fatalf("%s",err)}
 	o := ctx.Query("SELECT * FROM x")
 
 	if len(o) != 1 { t.Fatalf("expecting 1 row in the table got: %d - %#v",len(o),o)}
 	id := o[0]["id"]
+	if (last_id != id) { t.Fatalf("last_insert_id(%d) != id(%d)",last_id,id)}
 	found := ctx.FindById("x",id)
 	if found == nil { t.Fatalf("couldnt find %s",id)}
 	if found["title"] != u["title"] { t.Fatalf("title field mismatch: %s - %s",found["title"],u["title"])}
 	found["title"] = "yyy"
 
-	err = ctx.Replace("x",found)
+	_,err = ctx.Replace("x",found)
 	if err != nil { t.Fatalf("%s",err)}
 	found_again := ctx.FindById("x",found["id"])
 	if found_again == nil { t.Fatalf("couldnt find %s",found["id"])}
 	if found_again["title"] != found["title"] { t.Fatalf("tite field mismatch: %s - %s",found_again["title"],found["title"])}
+	last_id,err = ctx.Replace("x",u)
+	if last_id == 0 { t.Fatalf("expecting last_insert_id != 0") }
 	// sqlite does not care for type swap
 	// found["stamp"] = "ssss"
 	// err = ctx.Replace("x",found)
