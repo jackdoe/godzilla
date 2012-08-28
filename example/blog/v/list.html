@@ -1,20 +1,20 @@
 {{define "yield"}}
+	{{$global := .}}
 	<div class="page-header">
 		<h1>{{.title}}</h1>
 		<p>
 			containing {{ len .items }} posts
 		</p>
 	</div>
-	<blockquote class="pull-right">
+	<blockquote class="pull-right categories">
 		{{range .categories}}
-			<p>
-				{{if eq .name .selected}}<em>{{end}}
+			<p class="category" id="{{.id}}">
+				{{if eq .id $global.selected}}<strong>{{end}}
 				{{.name}}
-				{{if eq .name .selected}}</em>{{end}}
+				{{if eq .id $global.selected}}</strong>{{end}}
 			</p>
 		{{end}}
 	</blockquote>
-	{{ $global := . }}
 	{{range .items}}
 		<blockquote>
 			<p>{{.title}}</p>

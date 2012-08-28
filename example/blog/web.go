@@ -6,7 +6,9 @@ import (
 	"regexp"
 	"time"
 	"encoding/json"
-	"strings"
+	"strconv"
+	"reflect"
+	"log"
 )
 func is_admin(ctx *godzilla.Context) (bool) {
 	ip,_ := regexp.Match("^127\\.0\\.0\\.1:",[]byte(ctx.R.RemoteAddr))
@@ -17,6 +19,7 @@ func list(ctx *godzilla.Context) {
 
 	ctx.O["title"] = "godzilla blog!"
 	ctx.O["categories"] = ctx.Query("SELECT * FROM categories ORDER BY name")
+	ctx.O["selected"],_ = strconv.ParseInt(reflect.ValueOf(ctx.Params["category"]).String(),10,64)
 	_,ok := ctx.Params["category"]; if ok {
 		ctx.O["items"] = ctx.Query("SELECT a.* FROM posts a, post_category b WHERE a.id = b.post_id AND b.category_id=? ORDER BY stamp DESC",ctx.Params["category"])
 	} else {
@@ -25,28 +28,40 @@ func list(ctx *godzilla.Context) {
 	ctx.O["is_admin"] = is_admin(ctx)
 	ctx.Render("list")
 }
-func modify_category(ctx *godzilla.Context) {
+func modify(ctx *godzilla.Context) {
 	if ! is_admin(ctx) { ctx.Error("not allowed",404); return }
-	ctx.ContentType(godzilla.TypeJSON)
+	log.Printf("%#v",ctx.Params)
+	object_id := ctx.Splat[2]
+	object_type := ctx.Splat[1]
+	if object_type != "posts" || object_type != "categories" {
+		ctx.Error("bad object type",500)
+		return
+	}
 	var output interface{}
 	switch ctx.R.Method {
 		case "GET":
-			output = ctx.FindById("categories",ctx.Splat[1])
+			output = ctx.FindById(object_type,object_id)
 		case "POST","PUT":
-			u := map[string]interface{}{"name":ctx.Params["title"]}
+			var u map[string]interface{}
+			if object_type == "categories" {
+				u = map[string]interface{}{"name":ctx.Params["title"]}
+			} else {
+				u = map[string]interface{}{"title":ctx.Params["title"],"long":ctx.Params["long"],"stamp":time.Now().Unix()}
+			}
 			if ctx.R.Method == "PUT" {
 				u["id"] = ctx.Splat[1]
 			}
-			id,_ := ctx.Replace("categories",u)
-			output = ctx.FindById("categories",id)
+			id,_ := ctx.Replace(object_type,u)
+			output = ctx.FindById(object_type,id)
 		case "DELETE":
-			ctx.DB.Exec("DELETE FROM categories WHERE id=?",ctx.Splat[1])
-			output = "deleted " + ctx.Splat[1]
+			ctx.DeleteId(object_type,object_id)
+			output = "deleted " + object_id + "@" + object_type
 		case "OPTIONS":
-			output = ctx.Query("SELECT * FROM categories a ORDER BY name")
+			output = ctx.Query("SELECT * FROM `" + object_type+ "` a ORDER BY name")
 	}
 	b,e := json.Marshal(output)
 	if e != nil { b = []byte(e.Error()) }
+	ctx.ContentType(godzilla.TypeJSON)
 	ctx.W.Write(b)
 }
 func show(ctx *godzilla.Context) {
@@ -94,7 +109,7 @@ func main() {
 	godzilla.Debug = (godzilla.DebugQuery)
 	godzilla.Route("^/$",list)
 	godzilla.Route("^/show/(\\d+)$",show)
-	godzilla.Route("^/admin/category/(\\d+)$",modify_category)
+	godzilla.Route("^/admin/modify/(posts|categories)/(\\d+)$",modify)
 	godzilla.Route("^/admin/$",list)
 	godzilla.Route("^/admin/show/(edit|delete|create)/(\\d+)$",show)
 	godzilla.Start("localhost:8080",db)

@@ -234,6 +234,6 @@ func (this *Context) Replace(table string,input map[string]interface{}) (int64,e
 	}
 	return last_id,e
 }
-// func (this *Context) DeleteId(table string, id interface{}) {
-// 	this.DB.Exec("DELETE FROM `"+table+"` WHERE id=?",id)
-// }
+func (this *Context) DeleteId(table string, id interface{}) {
+	this.DB.Exec("DELETE FROM `"+table+"` WHERE id=?",id)
+}
