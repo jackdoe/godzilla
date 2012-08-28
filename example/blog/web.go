@@ -25,20 +25,21 @@ func list(ctx *godzilla.Context) {
 }
 func modify_category(ctx *godzilla.Context) {
 	if ! is_admin(ctx) { ctx.Error("not allowed",404); return }
+	ctx.ContentType(godzilla.TypeJSON)
 	var output interface{}
 	switch ctx.R.Method {
 		case "GET":
 			output = ctx.FindById("categories",ctx.Splat[1])
 		case "POST","PUT":
 			u := map[string]interface{}{"name":ctx.Params["title"]}
-			if ctx.R.Method == PUT {
+			if ctx.R.Method == "PUT" {
 				u["id"] = ctx.Splat[1]
 			}
-			id,_ ctx.Replace("categories",u)
+			id,_ := ctx.Replace("categories",u)
 			output = ctx.FindById("categories",id)
 		case "DELETE":
 			ctx.DB.Exec("DELETE FROM categories WHERE id=?",ctx.Splat[1])
-			output := "deleted " + ctx.Splat[1]
+			output = "deleted " + ctx.Splat[1]
 		case "OPTIONS":
 			output = ctx.Query("SELECT * FROM categories a ORDER BY name")
 	}

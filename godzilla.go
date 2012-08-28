@@ -23,6 +23,9 @@ type Context struct {
 const (
 	DebugQuery = 1
 	DebugQueryResult = 2
+	TypeJSON = "application/json" //http://stackoverflow.com/questions/477816/what-format-should-i-use-for-the-right-json-content-type
+	TypeHTML = "text/html"
+	TypeText = "text/plain"
 )
 var (
 	Debug int = 0
@@ -48,6 +51,7 @@ func Route(pattern string, handler func(*Context)()) {
 // 		session.CookieDomain = "localhost"
 // 		godzilla.Route("/product/show/(\\d+)",product_show)
 // 		godzilla.Start("localhost:8080",db)
+
 func Start(addr string,db *sql.DB) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		var s *session.SessionObject
@@ -55,7 +59,6 @@ func Start(addr string,db *sql.DB) {
 			s = session.New(w,r)
 		}
 		path := r.URL.Path
-		w.Header().Set("Content-Type", "text/html")
 		for k, v := range routes {
 			matched := k.FindStringSubmatch(path)
 			if matched != nil {
@@ -67,7 +70,9 @@ func Start(addr string,db *sql.DB) {
 						params[k] = v[0]
 					}
 				}
-				v(&Context{w,r,s,db,map[string]interface{}{},"layout",matched,params})
+				ctx := &Context{w,r,s,db,map[string]interface{}{},"layout",matched,params}
+				ctx.ContentType(TypeHTML)
+				v(ctx)
 				return
 			}
 		}
@@ -137,6 +142,10 @@ func (this *Context) Write(s string) {
 //	ctx.Redirect("http://golang.org")
 func (this *Context) Redirect(url string) {
 	http.Redirect(this.W,this.R,url,302)
+}
+
+func (this *Context) ContentType(s string) {
+	this.W.Header().Set("Content-Type", s)
 }
 
 // example:
