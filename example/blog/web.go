@@ -22,7 +22,7 @@ func show(ctx *godzilla.Context) {
 	switch ctx.Splat[1] {
 		case "edit","create":
 			if ! is_admin(ctx) { err(); return }
-			u := map[string]interface{"title":ctx.Params["title"],"long":ctx.Params["long"],"stamp":time.Now().Unix()}
+			u := map[string]interface{}{"title":ctx.Params["title"],"long":ctx.Params["long"],"stamp":time.Now().Unix()}
 			ctx.O["title"] = ctx.Splat[1]
 			o := ctx.FindById("posts",ctx.Splat[2]); 
 			if (ctx.R.Method == "GET") {
