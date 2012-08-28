@@ -20,6 +20,7 @@ type Context struct {
 	Layout string
 	Splat []string
 	Params map[string]interface{}
+	Sparams map[string]string
 }
 const (
 	DebugQuery = 1
@@ -65,13 +66,15 @@ func Start(addr string,db *sql.DB) {
 			if matched != nil {
 				log.Printf("%s @ %%r{%s}",path,k)
 				params := map[string]interface{}{}
+				sparams := map[string]string{}
 				r.ParseForm()
 				if len(r.Form) > 0 {
 					for k, v := range r.Form {
 						params[k] = v[0]
+						sparams[k] = v[0]
 					}
 				}
-				ctx := &Context{w,r,s,db,map[string]interface{}{},"layout",matched,params}
+				ctx := &Context{w,r,s,db,map[string]interface{}{},"layout",matched,params,sparams}
 				ctx.ContentType(TypeHTML)
 				v(ctx)
 				return
