@@ -106,8 +106,8 @@ func (this *Context) IsXHR() bool {
 func (this *Context) Render(name string) {
 	var ts *template.Template
 	var err error
-	name += TemplateExt
 	gen := func(s string) string {
+		s += TemplateExt
 		if strings.Contains(s,"/") {
 			return s
 		}
