@@ -96,11 +96,22 @@ func (this *Context) IsXHR() bool {
 	}
 	return false
 }
+
+
+// renders a template, if the template name contains '/' it is rendered with absolute path
+// otherwise it is appended to Views
+// example
+//	ctx.Render("show") // -> ./v/show.html (Views + "show" + ".html")
+//	ctx.Render("/tmp/show") // -> /tmp/show.html ("/tmp/show" + ".html")
 func (this *Context) Render(name string) {
 	var ts *template.Template
 	var err error
+	name += TemplateExt
 	gen := func(s string) string {
-		return Views + s + TemplateExt
+		if strings.Contains(s,"/") {
+			return s
+		}
+		return Views + s
 	}
 	name = gen(name)
 	if (NoLayoutForXHR && this.IsXHR()) || len(this.Layout) == 0 {
