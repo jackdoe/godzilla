@@ -116,7 +116,7 @@ func (this *Context) Render(extra ...string) {
 	layout := ((NoLayoutForXHR && this.IsXHR()) || len(this.Layout) == 0)
 	var ROOT string
 	templates := []string{}	
-	
+
 	gen := func(s string) string {
 		s += TemplateExt
 		if strings.Contains(s,"/") {
@@ -128,7 +128,7 @@ func (this *Context) Render(extra ...string) {
 		ROOT = "yield"
 	} else {
 		ROOT = "layout"
-		templates = append(templates,"layout")
+		templates = append(templates,gen(this.Layout))
 	}
 	for _,v := range extra {
 		templates = append(templates,gen(v))
