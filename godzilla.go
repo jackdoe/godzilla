@@ -110,8 +110,6 @@ func (this *Context) IsXHR() bool {
 //	ctx.Render("show") // -> ./v/show.html (Views + "show" + ".html")
 //	ctx.Render("/tmp/show") // -> /tmp/show.html ("/tmp/show" + ".html")
 func (this *Context) Render(name string) {
-	var ts *template.Template
-	var err error
 	gen := func(s string) string {
 		s += TemplateExt
 		if strings.Contains(s,"/") {
@@ -120,6 +118,9 @@ func (this *Context) Render(name string) {
 		return Views + s
 	}
 	name = gen(name)
+	var err error
+	ts := template.New("main")
+	ts.Funcs(template.FuncMap{"eq": reflect.DeepEqual})
 	if (NoLayoutForXHR && this.IsXHR()) || len(this.Layout) == 0 {
 		ts,err = template.ParseFiles(name)
 		ts.Parse(`{{template "yield" .}}`)
@@ -129,7 +130,7 @@ func (this *Context) Render(name string) {
 	if err != nil {
 		log.Printf("error rendering: %s - %s",name,err.Error())
 	}
-	ts.Funcs(template.FuncMap{"eq": reflect.DeepEqual})
+	
 	ts.Execute(this.W, this.O)
 }
 
