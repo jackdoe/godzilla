@@ -206,7 +206,7 @@ func (this *Context) FindById(table string, id interface{}) (map[string]interfac
 } 
 
 // POC: bad performance
-func (this *Context) Replace(table string,input map[string]interface{}) (error) {
+func (this *Context) Replace(table string,input map[string]interface{}) (int64,error) {
 	keys := []interface{}{}
 	values := []interface{}{}
 	skeys := []string{}
@@ -220,6 +220,13 @@ func (this *Context) Replace(table string,input map[string]interface{}) (error) 
 	q := fmt.Sprintf("REPLACE INTO `%s` (%s) VALUES(%s)",table,strings.Join(skeys,","),questionmarks)
 	if (Debug & DebugQuery) > 0 { log.Printf("%s",q) }
 	if (Debug & DebugQueryResult) > 0 { log.Printf("%s: %#v",q,input) }
-	_,e := this.DB.Exec(q,values...)
-	return e
+	res,e := this.DB.Exec(q,values...)
+	last_id := int64(0)
+	if res != nil {
+		last_id,_ = res.LastInsertId()
+	}
+	return last_id,e
 }
+// func (this *Context) DeleteId(table string, id interface{}) {
+// 	this.DB.Exec("DELETE FROM `"+table+"` WHERE id=?",id)
+// }
