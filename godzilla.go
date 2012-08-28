@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"text/template"
 	"fmt"
+	"reflect"
 )
 type Context struct {
 	W http.ResponseWriter
@@ -128,6 +129,7 @@ func (this *Context) Render(name string) {
 	if err != nil {
 		log.Printf("error rendering: %s - %s",name,err.Error())
 	}
+	ts.Funcs(template.FuncMap{"eq": reflect.DeepEqual})
 	ts.Execute(this.W, this.O)
 }
 

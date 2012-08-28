@@ -14,7 +14,7 @@ func is_admin(ctx *godzilla.Context) (bool) {
 }
 func list(ctx *godzilla.Context) {
 	ctx.O["title"] = "godzilla blog!"
-	ctx.O["categories"] = ctx.Query("SELECT * FROM categories a  ORDER BY name")
+	ctx.O["categories"] = ctx.Query("SELECT * FROM categories ORDER BY name")
 	_,ok := ctx.Params["category"]; if ok {
 		ctx.O["items"] = ctx.Query("SELECT a.* FROM posts a, post_category b WHERE a.id = b.post_id AND b.category_id=? ORDER BY stamp DESC",ctx.Params["category"])
 	} else {

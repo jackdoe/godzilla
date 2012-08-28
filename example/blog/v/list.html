@@ -5,6 +5,15 @@
 			containing {{ len .items }} posts
 		</p>
 	</div>
+	<blockquote class="pull-right">
+		{{range .categories}}
+			<p>
+				{{if eq .name .selected}}<em>{{end}}
+				{{.name}}
+				{{if eq .name .selected}}<em>{{end}}
+			</p>
+		{{end}}
+	</blockquote>
 	{{ $global := . }}
 	{{range .items}}
 		<blockquote>
