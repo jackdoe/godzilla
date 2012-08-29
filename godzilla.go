@@ -124,7 +124,7 @@ func (this *Context) Render(extra ...string) {
 		return Views + s
 	}
 
-	pc, _, _, ok := runtime.Caller(1)
+	pc, file, _, ok := runtime.Caller(1)
 	if !ok {
 		caller = "unknown"
 	} else {
@@ -132,11 +132,13 @@ func (this *Context) Render(extra ...string) {
 		if me == nil {
 			caller = "unnamed"
 		} else {
-			caller = me.Name()
+			caller = "file_" + me.Name()
 		}
 	}
+
+
 	if len(extra) == 0 {
-		extra = append(extra,gen(caller))
+		extra = append(extra,caller)
 	}
 	if (NoLayoutForXHR && this.IsXHR()) || len(this.Layout) == 0 {
 		ROOT = "yield"
