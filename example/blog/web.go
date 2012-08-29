@@ -35,7 +35,7 @@ func list(ctx *godzilla.Context) {
 		ctx.O["items"] = ctx.Query("SELECT *,(strftime('%s', 'now') - created_at) as ago FROM posts ORDER BY created_at DESC")
 	}
 	ctx.O["is_admin"] = is_admin(ctx)
-	ctx.Render("list")
+	// ctx.Render("list")
 }
 func modify(ctx *godzilla.Context) {
 	if ! is_admin(ctx) { ctx.Error("not allowed",404); return }
@@ -89,7 +89,7 @@ func main() {
 	db.Exec("CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY,name TEXT NOT NULL UNIQUE,created_at INTEGER,updated_at INTEGER)")
 
 	godzilla.EnableSessions = false
-	godzilla.Debug = (godzilla.DebugQuery)
+	godzilla.Debug = (godzilla.DebugQuery | godzilla.DebugTemplateRendering)
 	godzilla.Route("^/$",list)
 	godzilla.Route("^/show/(\\d+)$",show)
 	godzilla.Route("^/admin/modify/(posts|categories|post_category)/(\\d+)$",modify)

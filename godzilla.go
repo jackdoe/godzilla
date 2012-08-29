@@ -26,6 +26,7 @@ type Context struct {
 const (
 	DebugQuery = 1
 	DebugQueryResult = 2
+	DebugTemplateRendering = 4
 	TypeJSON = "application/json" //http://stackoverflow.com/questions/477816/what-format-should-i-use-for-the-right-json-content-type
 	TypeHTML = "text/html"
 	TypeText = "text/plain"
@@ -147,6 +148,9 @@ func (this *Context) Render(extra ...string) {
 	}
 	for _,v := range extra {
 		templates = append(templates,gen(v))
+	}
+	if (Debug & DebugTemplateRendering) > 0 {
+		log.Printf("loading: %#v",templates)
 	}
 	ts := template.New("ROOT")
 	ts.Funcs(template.FuncMap{"eq": reflect.DeepEqual})
