@@ -36,8 +36,8 @@ func main() {
     godzilla.Route("^/gallery/albums$",gallery.Albums)
     godzilla.Route("^/gallery/album/(\\d+)$",gallery.Album)
     godzilla.Route("^/gallery/picture/(\\d+)$",gallery.Picture)
-    godzilla.Route("^/url/(\\d+)",url.Redirect)
-    godzilla.Route("^/url/append/(.*)",url.Append)
+    godzilla.Route("^/url/(\\d+)",shortener.Redirect)
+    godzilla.Route("^/url/append/(.*)",shortener.Append)
     godzilla.Start("localhost:8080",db)
 }
 
