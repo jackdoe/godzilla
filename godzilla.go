@@ -38,6 +38,8 @@ var (
 	NoLayoutForXHR bool = true
 	TemplateExt string = ".html"
 	EnableSessions bool = true
+	template_regexp = regexp.MustCompile(".*?(\\w+)\\.(\\w+)")
+	sanitize_regexp = regexp.MustCompile("^([a-zA-Z0-9_]+?)*$")
 )
 
 var routes = map[*regexp.Regexp]func(*Context)(){}
@@ -56,7 +58,6 @@ func Route(pattern string, handler func(*Context)()) {
 // 		session.CookieDomain = "localhost"
 // 		godzilla.Route("/product/show/(\\d+)",product_show)
 // 		godzilla.Start("localhost:8080",db)
-
 func Start(addr string,db *sql.DB) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		var s *session.SessionObject
@@ -122,7 +123,6 @@ func (this *Context) IsXHR() bool {
 // and renders v/package_name/function.templateExt
 // so for example if we have package gallery with function Album() and we have ctx.Render() inside it
 // it will render Views + /gallery/ + album + TemplateExt (default: ./v/gallery/album.html)
-
 func (this *Context) Render(extra ...string) {
 	var ROOT string
 	templates := []string{}	
@@ -147,7 +147,7 @@ func (this *Context) Render(extra ...string) {
 				caller = me.Name()
 			}
 		}
-		caller = regexp.MustCompile(".*?(\\w+)\\.(\\w+)").ReplaceAllString(caller,"$1"+string(os.PathSeparator)+"$2")
+		caller = template_regexp.ReplaceAllString(caller,"$1"+string(os.PathSeparator)+"$2")
 		extra = append(extra,caller)
 	}
 	if (NoLayoutForXHR && this.IsXHR()) || len(this.Layout) == 0 {
@@ -243,17 +243,35 @@ func (this *Context) Query(query string, args ...interface{}) []map[string]inter
 	return r
 }
 
-func (this *Context) FindById(table string, id interface{}) (map[string]interface{}) {
-	o := this.Query("SELECT * FROM `"+table+"` WHERE id=?",id)
+
+func (this *Context) FindBy(table string, field string,v interface{}) (map[string]interface{}) {
+	table = sanitize(table)
+	field = sanitize(field)
+	o := this.Query("SELECT * FROM `"+table+"` WHERE `"+field+"`=?",v)
 	if len(o) > 0 {
 		return o[0]
 	}
 	return nil
+}
+func (this *Context) FindById(table string, id interface{}) (map[string]interface{}) {
+	return this.FindBy(table,"id",id)
 } 
+
+func (this *Context) DeleteBy(table string, field string, v interface{}) {
+	table = sanitize(table)
+	field = sanitize(field)
+	q := "DELETE FROM `"+table+"` WHERE `"+field+"`=?"
+	if (Debug & DebugQuery) > 0 { log.Printf("%s",q) }
+	this.DB.Exec(q,v)
+}
+func (this *Context) DeleteId(table string, id interface{}) {
+	this.DeleteBy(table,"id",id)
+}
 
 // POC: bad performance
 // updates database fields based on map's keys - every key that begins with _ is skipped
 func (this *Context) Replace(table string,input map[string]interface{}) (int64,error) {
+	table = sanitize(table)
 	keys := []interface{}{}
 	values := []interface{}{}
 	skeys := []string{}
@@ -277,10 +295,10 @@ func (this *Context) Replace(table string,input map[string]interface{}) (int64,e
 	}
 	return last_id,e
 }
-func (this *Context) DeleteId(table string, id interface{}) {
-	this.DB.Exec("DELETE FROM `"+table+"` WHERE id=?",id)
-}
-
 func (this *Context) Log(format string, v ...interface{}) {
 	log.Printf(format,v...)
+}
+
+func sanitize(s string) string {
+	return sanitize_regexp.ReplaceAllString(s,"$1")
 }
