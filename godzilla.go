@@ -54,7 +54,7 @@ func Start(addr string,db *sql.DB) {
 		}
 		rpath := r.URL.Path
 		if EnableStaticDirectory {
-			f := path.Join(StaticDirectory, rpath)
+			f := path.Join(StaticDirectory, path.Clean(rpath))
 			stat,err := os.Stat(f);
 			if err == nil && (!stat.IsDir()) && (r.Method == "GET" || r.Method == "HEAD") {
 				log.Printf("FILE: %s {URI: %s}",f,rpath)
