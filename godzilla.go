@@ -163,7 +163,7 @@ func (this *Context) Render(extra ...string) {
 		log.Printf("loading: %#v",templates)
 	}
 	ts := template.New("ROOT")
-	ts.Funcs(template.FuncMap{"eq": reflect.DeepEqual,"js": javascript_template})
+	ts.Funcs(template.FuncMap{"eq": reflect.DeepEqual,"js": template_js})
 	ts = template.Must(ts.ParseFiles(templates...))
 	ts.ExecuteTemplate(this.W, ROOT,this.O)
 }
@@ -312,11 +312,12 @@ func caller(level int) string {
 	if me == nil { return "unnamed" } 
 	return me.Name()
 }
+// {{ js "calendar/cell"}}
 
-func javascript_template(args ...string) string {
+func template_js(args ...string) string {
 	s := ""
 	for _,v := range args {
-		s += fmt.Sprintf("<script type='text/template' id='%s' src='/%s.js'></script><script>var %s = $('#%s').html();</script>",v,v,v,v)
+		s += fmt.Sprintf("<script type='text/template' id='%s' src='/%s.js'></script><script>var %s = $('#%s').html();</script>",v,v,strings.Replace(v,"/","_",-1),v)
 	}
 	return s
 }
