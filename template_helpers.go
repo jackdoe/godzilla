@@ -11,7 +11,8 @@ func Template_js(args ...string) string {
 	s := ""
 	for _,v := range args {
 		us := strings.Replace(v,"/","_",-1)
-		s += fmt.Sprintf("<script type='text/template' id='%s' src='/%s.js'></script><script>var %s = $('#%s').html();</script>",us,v,us,us)
+		// s += fmt.Sprintf("<script type='text/template' id='%s' src='/%s.js'></script><script>var %s = $('#%s').html();</script>",us,v,us,us)
+		s += fmt.Sprintf("<script>var %s; $.get('%s',function(_data) { %s = _data; });</script>",us,v,us)
 	}
 	return s
 }
