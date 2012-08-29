@@ -141,9 +141,8 @@ func (this *Context) Render(extra ...string) {
 
 	gen := func(s string) string {
 		s += TemplateExt
-
 		if len(s) > 0 && s[0] == os.PathSeparator { return s }
-		return Views + strings.ToLower(s)
+		return path.Join(Views,strings.ToLower(s))
 	}
 
 	if len(extra) == 0 {
