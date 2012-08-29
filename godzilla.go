@@ -135,20 +135,9 @@ func (this *Context) Render(extra ...string) {
 	}
 
 	if len(extra) == 0 {
-		var caller string
-		pc, _, _, ok := runtime.Caller(1)
-		if !ok {
-			caller = "unknown"
-		} else {
-			me := runtime.FuncForPC(pc)
-			if me == nil {
-				caller = "unnamed"
-			} else {
-				caller = me.Name()
-			}
-		}
-		caller = template_regexp.ReplaceAllString(caller,"$1"+string(os.PathSeparator)+"$2")
-		extra = append(extra,caller)
+		c := caller(2)
+		c = template_regexp.ReplaceAllString(c,"$1"+string(os.PathSeparator)+"$2")
+		extra = append(extra,c)
 	}
 	if (NoLayoutForXHR && this.IsXHR()) || len(this.Layout) == 0 {
 		ROOT = "yield"
@@ -163,7 +152,7 @@ func (this *Context) Render(extra ...string) {
 		log.Printf("loading: %#v",templates)
 	}
 	ts := template.New("ROOT")
-	ts.Funcs(template.FuncMap{"eq": reflect.DeepEqual,"js": javascript})
+	ts.Funcs(template.FuncMap{"eq": reflect.DeepEqual,"js": javascript_template})
 	ts = template.Must(ts.ParseFiles(templates...))
 	ts.ExecuteTemplate(this.W, ROOT,this.O)
 }
@@ -313,8 +302,13 @@ func caller(level int) string {
 	return me.Name()
 }
 
-func javascript(args ...interface{}) string {
-	log.Printf("%#v",args)
-	log.Printf("1: %s 2: %s 3: %s",caller(1),caller(2),caller(3))
-	return "\\o/"
+func javascript_template(args ...string) string {
+	var s string
+	gen := func(ident string) string {
+		return fmt.Sprintf("<script type='text/template' id='%s' src='/public/%s.js'></script><script>var %s = $('#%s').html();</script>",ident,ident,ident,ident)
+	}
+	for _,v := range args {
+		s += gen(v)
+	}
+	return s
 }
