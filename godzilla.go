@@ -312,8 +312,10 @@ func caller(level int) string {
 	if me == nil { return "unnamed" } 
 	return me.Name()
 }
-// {{ js "calendar/cell"}}
 
+//{{ js "calendar/cell" "calendar/row"}}
+//	<script type='text/template' id='calendar/cell' src='/calendar/cell.js'></script><script>var calendar_cell = $('#calendar/cell').html();</script>
+//	<script type='text/template' id='calendar/row' src='/calendar/row.js'></script><script>var calendar_row = $('#calendar/row').html();</script>
 func template_js(args ...string) string {
 	s := ""
 	for _,v := range args {
