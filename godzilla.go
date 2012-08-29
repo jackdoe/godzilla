@@ -124,7 +124,7 @@ func (this *Context) Render(extra ...string) {
 		return Views + s
 	}
 
-	pc, _, _, ok := runtime.Caller(2)
+	pc, _, _, ok := runtime.Caller(1)
 	if !ok {
 		caller = "unknown"
 	} else {
