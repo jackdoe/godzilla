@@ -112,7 +112,7 @@ const (
     DebugQuery             = 1
     DebugQueryResult       = 2
     DebugTemplateRendering = 4
-    TypeJSON               = "application/json"
+    TypeJSON               = "application/json" //http://stackoverflow.com/questions/477816/what-format-should-i-use-for-the-right-json-content-type
     TypeHTML               = "text/html"
     TypeText               = "text/plain"
 )
@@ -121,11 +121,13 @@ const (
 VARIABLES
 
 var (
-    Debug          int    = 0
-    Views          string = "./v/"
-    NoLayoutForXHR bool   = true
-    TemplateExt    string = ".html"
-    EnableSessions bool   = true
+    Debug                 int    = 0
+    Views                 string = "./v/"
+    NoLayoutForXHR        bool   = true
+    TemplateExt           string = ".html"
+    EnableSessions        bool   = true
+    EnableStaticDirectory bool   = true
+    StaticDirectory       string = "./public"
 )
 
 
@@ -229,6 +231,8 @@ func (this *Context) Replace(table string, input map[string]interface{}) (int64,
     POC: bad performance updates database fields based on map's keys - every
     key that begins with _ is skipped
 
+func (this *Context) Sanitize(s string) string
+
 func (this *Context) Write(s string)
     shorthand for writing strings into the http writer example:
 
@@ -236,6 +240,7 @@ func (this *Context) Write(s string)
 
 
 SUBDIRECTORIES
+
     example
 ```
 
