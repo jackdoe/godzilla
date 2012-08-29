@@ -163,7 +163,7 @@ func (this *Context) Render(extra ...string) {
 		log.Printf("loading: %#v",templates)
 	}
 	ts := template.New("ROOT")
-	ts.Funcs(template.FuncMap{"eq": reflect.DeepEqual})
+	ts.Funcs(template.FuncMap{"eq": reflect.DeepEqual,"js": javascript})
 	ts = template.Must(ts.ParseFiles(templates...))
 	ts.ExecuteTemplate(this.W, ROOT,this.O)
 }
@@ -298,7 +298,22 @@ func (this *Context) Replace(table string,input map[string]interface{}) (int64,e
 func (this *Context) Log(format string, v ...interface{}) {
 	log.Printf(format,v...)
 }
+func (this *Context) Sanitize(s string) string {
+	return sanitize(s)
+}
 
 func sanitize(s string) string {
 	return sanitize_regexp.ReplaceAllString(s,"")
+}
+func caller(level int) string {
+	pc, _, _, ok := runtime.Caller(level)
+	if !ok { return "unknown" } 
+	me := runtime.FuncForPC(pc)
+	if me == nil { return "unnamed" } 
+	return me.Name()
+}
+
+func javascript(args ...interface{}) {
+	log.Printf("%#v",args)
+	log.Printf("1: %s 2: %s 3: %s",caller(1),caller(2),caller(3))
 }
