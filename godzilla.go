@@ -135,7 +135,7 @@ func (this *Context) Render(extra ...string) {
 			caller = me.Name()
 		}
 	}
-	caller = regexp.MustCompile(".*?\\.").ReplaceAllString(caller,"")
+	// caller = regexp.MustCompile(".*?\\.").ReplaceAllString(caller,"")
 	if len(extra) == 0 {
 		extra = append(extra,caller)
 	}
