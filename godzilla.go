@@ -147,7 +147,7 @@ func (this *Context) Render(extra ...string) {
 				caller = me.Name()
 			}
 		}
-		caller = regexp.MustCompile("(.*?)\\.(\\w+)").ReplaceAllString(caller,"$1"+string(os.PathSeparator)+"$2")
+		caller = regexp.MustCompile(".*?(\\w+)\\.(\\w+)").ReplaceAllString(caller,"$1"+string(os.PathSeparator)+"$2")
 		extra = append(extra,caller)
 	}
 	if (NoLayoutForXHR && this.IsXHR()) || len(this.Layout) == 0 {

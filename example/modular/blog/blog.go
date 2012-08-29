@@ -1,8 +1,6 @@
-package main
+package blog
 import (
 	"github.com/jackdoe/godzilla"
-	"database/sql"
-	_ "github.com/mattn/go-sqlite3"
 	"regexp"
 	"time"
 	"encoding/json"
@@ -15,7 +13,7 @@ func is_admin(ctx *godzilla.Context) (bool) {
 	return (ip && uri)
 }
 
-func list(ctx *godzilla.Context) {
+func List(ctx *godzilla.Context) {
 	ctx.O["title"] = "godzilla blog!"
 	ctx.O["categories"] = ctx.Query("SELECT * FROM categories ORDER BY name")
 	ctx.O["selected"],_ = strconv.ParseInt(reflect.ValueOf(ctx.Params["category"]).String(),10,64)
@@ -37,7 +35,7 @@ func list(ctx *godzilla.Context) {
 	ctx.O["is_admin"] = is_admin(ctx)
 	ctx.Render()
 }
-func modify(ctx *godzilla.Context) {
+func Modify(ctx *godzilla.Context) {
 	if ! is_admin(ctx) { ctx.Error("not allowed",404); return }
 
 	object_id := ctx.Splat[2]
@@ -74,26 +72,10 @@ func modify(ctx *godzilla.Context) {
 	ctx.ContentType(godzilla.TypeJSON)
 	ctx.W.Write(b)
 }
-func show(ctx *godzilla.Context) {
+func Show(ctx *godzilla.Context) {
 	o := ctx.FindById("posts",ctx.Splat[1]); 
 	if o == nil { ctx.Error("nothing to do here.. \\o/",404); return }
 	ctx.O["title"] = o["title"]
 	ctx.O["item"] = o
 	ctx.Render()
-}
-func main() {
-	db, _ := sql.Open("sqlite3", "./high-preformance-database.db")
-	defer db.Close()
-	db.Exec("CREATE TABLE IF NOT EXISTS post_category (id INTEGER PRIMARY KEY,post_id BIGINT NOT NULL,category_id BIGINT NOT NULL,created_at INTEGER,updated_at INTEGER,CONSTRAINT uc_post_category UNIQUE (post_id,category_id))")
-	db.Exec("CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY,title TEXT NOT NULL,long TEXT NOT NULL,created_at INTEGER,updated_at INTEGER)")
-	db.Exec("CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY,name TEXT NOT NULL UNIQUE,created_at INTEGER,updated_at INTEGER)")
-
-	godzilla.EnableSessions = false
-	godzilla.Debug = (godzilla.DebugQuery | godzilla.DebugTemplateRendering)
-
-	godzilla.Route("^/$",list)
-	godzilla.Route("^/show/(\\d+)$",show)
-	godzilla.Route("^/admin/modify/(posts|categories|post_category)/(\\d+)$",modify)
-	godzilla.Route("^/admin/$",list)
-	godzilla.Start("localhost:8080",db)
 }
