@@ -205,6 +205,15 @@ func TestStart(t *testing.T)  {
 	// err = ctx.Replace("x",found)
 	// if err == nil { t.Fatalf("expected error when updating int with string %#v",ctx.FindById("x",found["id"]))}
 
+	// test string sanitize
+	bad := []string{"^^^x","&&&x&&&","^%x","ƒƒåß∂®xƒ∆å∆∆ß∂"}
+	for v,_ := range bad {
+		sanitized := sanitize(v)
+		if (sanitized != "x") {
+			t.Fatalf("expecting x, got: %s",sanitized)
+		}
+	}
+
 	cleanup()
 	stop_server()
 }
