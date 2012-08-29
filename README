@@ -21,8 +21,12 @@ package godzilla
 CONSTANTS
 
 const (
-    DebugQuery       = 1
-    DebugQueryResult = 2
+    DebugQuery             = 1
+    DebugQueryResult       = 2
+    DebugTemplateRendering = 4
+    TypeJSON               = "application/json" //http://stackoverflow.com/questions/477816/what-format-should-i-use-for-the-right-json-content-type
+    TypeHTML               = "text/html"
+    TypeText               = "text/plain"
 )
 
 
@@ -43,28 +47,25 @@ func Route(pattern string, handler func(*Context))
     example: godzilla.Route("/product/show/(\\d+)",product_show)
 
 func Start(addr string, db *sql.DB)
-    starts the http server example:
-
-    db, _ := sql.Open("sqlite3", "./foo.db")
-    defer db.Close()
-    session.Init(db,"session")
-    session.CookieKey = "go.is.awesome"
-    session.CookieDomain = "localhost"
-    godzilla.Route("/product/show/(\\d+)",product_show)
-    godzilla.Start("localhost:8080",db)
 
 
 TYPES
 
 type Context struct {
-    W      http.ResponseWriter
-    R      *http.Request
-    S      *session.SessionObject
-    DB     *sql.DB
-    O      map[string]interface{}
-    Layout string
-    Splat  []string
+    W       http.ResponseWriter
+    R       *http.Request
+    S       *session.SessionObject
+    DB      *sql.DB
+    O       map[string]interface{}
+    Layout  string
+    Splat   []string
+    Params  map[string]interface{}
+    Sparams map[string]string
 }
+
+func (this *Context) ContentType(s string)
+
+func (this *Context) DeleteId(table string, id interface{})
 
 func (this *Context) Error(message string, code int)
     example:
@@ -83,6 +84,8 @@ func (this *Context) IsXHR() bool
         // or
         ctx.Render("ajax")
     }
+
+func (this *Context) Log(format string, v ...interface{})
 
 func (this *Context) Query(query string, args ...interface{}) []map[string]interface{}
     WARNING: POC, bad performance, do not use in production.
@@ -106,10 +109,16 @@ func (this *Context) Redirect(url string)
 
     ctx.Redirect("http://golang.org")
 
-func (this *Context) Render(name string)
+func (this *Context) Render(extra ...string)
+    renders a template, if the template name contains '/' it is rendered
+    with absolute path otherwise it is appended to Views example
 
-func (this *Context) Replace(table string, input map[string]interface{}) error
-    POC: bad performance
+    ctx.Render("show") // -> ./v/show.html (Views + "show" + ".html")
+    ctx.Render("/tmp/show") // -> /tmp/show.html ("/tmp/show" + ".html")
+
+func (this *Context) Replace(table string, input map[string]interface{}) (int64, error)
+    POC: bad performance updates database fields based on map's keys - every
+    key that begins with _ is skipped
 
 func (this *Context) Write(s string)
     shorthand for writing strings into the http writer example:
@@ -120,4 +129,5 @@ func (this *Context) Write(s string)
 SUBDIRECTORIES
 
     example
+    v
 
