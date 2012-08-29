@@ -13,7 +13,6 @@ import (
 	"runtime"
 	"path"
 	"os"
-	"io/ioutil"
 )
 type Context struct {
 	W http.ResponseWriter
@@ -72,12 +71,10 @@ func Start(addr string,db *sql.DB) {
 		if EnableStaticDirectory {
 			f := path.Join(StaticDirectory, rpath)
 			stat,err := os.Stat(f);
-			log.Printf("%s",f) 
+			log.Printf("%s %s %s",f,StaticDirectory,rpath) 
 			if err == nil && (!stat.IsDir()) && (r.Method == "GET" || r.Method == "HEAD") {
 				log.Printf("serving file: %s %s",f,rpath)
-				b, err := ioutil.ReadFile(path.Clean(f)); if err == nil {
-					w.Write(b)
-				}
+				http.ServeFile(w,r,path.Clean(f))
 			}
 		}
 		for k, v := range routes {
