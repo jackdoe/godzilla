@@ -112,7 +112,7 @@ const (
     DebugQuery             = 1
     DebugQueryResult       = 2
     DebugTemplateRendering = 4
-    TypeJSON               = "application/json" //http://stackoverflow.com/questions/477816/what-format-should-i-use-for-the-right-json-content-type
+    TypeJSON               = "application/json"
     TypeHTML               = "text/html"
     TypeText               = "text/plain"
 )
@@ -146,6 +146,12 @@ func Start(addr string, db *sql.DB)
     session.CookieDomain = "localhost"
     godzilla.Route("/product/show/(\\d+)",product_show)
     godzilla.Start("localhost:8080",db)
+
+func Template_js(args ...string) string
+    {{ js "calendar/cell" "calendar/row"}}
+
+    <script type='text/template' id='calendar/cell' src='/calendar/cell.js'></script><script>var calendar_cell = $('#calendar/cell').html();</script>
+    <script type='text/template' id='calendar/row' src='/calendar/row.js'></script><script>var calendar_row = $('#calendar/row').html();</script>
 
 
 TYPES
@@ -226,6 +232,8 @@ func (this *Context) Render(extra ...string)
     gallery with function Album() and we have ctx.Render() inside it it will
     render Views + /gallery/ + album + TemplateExt (default:
     ./v/gallery/album.html)
+
+func (this *Context) RenderJSON(j interface{}, error_code int) error
 
 func (this *Context) Replace(table string, input map[string]interface{}) (int64, error)
     POC: bad performance updates database fields based on map's keys - every
