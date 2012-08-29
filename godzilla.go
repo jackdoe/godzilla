@@ -71,9 +71,8 @@ func Start(addr string,db *sql.DB) {
 		if EnableStaticDirectory {
 			f := path.Join(StaticDirectory, rpath)
 			stat,err := os.Stat(f);
-			log.Printf("%s %s %s",f,StaticDirectory,rpath) 
 			if err == nil && (!stat.IsDir()) && (r.Method == "GET" || r.Method == "HEAD") {
-				log.Printf("serving file: %s %s",f,rpath)
+				log.Printf("FILE: %s {URI: %s}",f,rpath)
 				http.ServeFile(w,r,path.Clean(f))
 				return
 			}
