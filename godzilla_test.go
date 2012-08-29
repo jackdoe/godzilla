@@ -134,6 +134,7 @@ func TestStart(t *testing.T)  {
 	Route("^/exit",exit)
 	Route("^/blabla$",blabla)
 	Route("^/sample$",sample)
+	Route("^/sample_no_template_name$",sample_no_template_name)
 	Route("^/sample_force_no_layout$",sample_force_no_layout)
 	Route("^/set$",set)
 	Route("^/clear$",set)
