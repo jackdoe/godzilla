@@ -35,7 +35,7 @@ func list(ctx *godzilla.Context) {
 		ctx.O["items"] = ctx.Query("SELECT *,(strftime('%s', 'now') - created_at) as ago FROM posts ORDER BY created_at DESC")
 	}
 	ctx.O["is_admin"] = is_admin(ctx)
-	// ctx.Render("list")
+	ctx.Render()
 }
 func modify(ctx *godzilla.Context) {
 	if ! is_admin(ctx) { ctx.Error("not allowed",404); return }
@@ -79,7 +79,7 @@ func show(ctx *godzilla.Context) {
 	if o == nil { ctx.Error("nothing to do here.. \\o/",404); return }
 	ctx.O["title"] = o["title"]
 	ctx.O["item"] = o
-	ctx.Render("show")
+	ctx.Render()
 }
 func main() {
 	db, _ := sql.Open("sqlite3", "./high-preformance-database.db")

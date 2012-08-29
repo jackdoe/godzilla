@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"reflect"
 	"runtime"
+	"os"
 )
 type Context struct {
 	W http.ResponseWriter
@@ -136,7 +137,7 @@ func (this *Context) Render(extra ...string) {
 			caller = me.Name()
 		}
 	}
-	// caller = regexp.MustCompile(".*?\\.").ReplaceAllString(caller,"")
+	caller = regexp.MustCompile(".*?(\\.)\\w+").ReplaceAllString(caller,string(os.PathSeparator))
 	if len(extra) == 0 {
 		extra = append(extra,caller)
 	}
