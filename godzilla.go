@@ -313,7 +313,8 @@ func caller(level int) string {
 	return me.Name()
 }
 
-func javascript(args ...interface{}) {
+func javascript(args ...interface{}) string {
 	log.Printf("%#v",args)
 	log.Printf("1: %s 2: %s 3: %s",caller(1),caller(2),caller(3))
+	return "\\o/"
 }
