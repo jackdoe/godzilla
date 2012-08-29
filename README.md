@@ -43,7 +43,7 @@ func main() {
 
 ```
 if we access _/url/append/http://google.com_ godzilla's router will match _"^/url/append/(.*)"_
-and call url.Append(ctx) with one argument of type *Context, this is hot it could look like:
+and call url.Append(ctx) with one argument of type *Context, this is how it could look like:
 ```
 func Append(ctx *godzilla.Context) {
     id,_ := ctx.Replace("url",map[string]interface{}{"url":ctx.Splat[1]})
