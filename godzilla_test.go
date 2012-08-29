@@ -49,6 +49,10 @@ func splat(ctx *Context) {
 func sample(ctx *Context) {
 	ctx.Render("sample")
 }
+func sample_no_template_name(ctx *Context) {
+	ctx.Render()
+}
+
 func sample_force_no_layout(ctx *Context) {
 	ctx.Layout = ""
 	ctx.Render("sample")
@@ -147,11 +151,14 @@ func TestStart(t *testing.T)  {
 	if err != nil { t.Fatalf("%s",err)}
 	err = ioutil.WriteFile(Views + "sample" + TemplateExt, []byte(`{{define "yield"}}sample{{end}}`), 0644)
 	if err != nil { t.Fatalf("%s",err)}
+	err = ioutil.WriteFile(Views + "sample_no_template_name" + TemplateExt, []byte(`{{define "yield"}}sample_no_template_name{{end}}`), 0644)
+	if err != nil { t.Fatalf("%s",err)}
 	err = ioutil.WriteFile(Views + "session" + TemplateExt, []byte(`{{define "yield"}}{{.key}}{{end}}`), 0644)
 	if err != nil { t.Fatalf("%s",err)}
 	expect(t,URL + "sample",200,"^<body>sample</body>$",false)
 	NoLayoutForXHR = true
 	expect(t,URL + "sample",200,"^sample$",true) // should have no layout with ajax
+	expect(t,URL + "sample_no_template_name",200,"^sample_no_template_name$",true) // should have no layout with ajax
 	expect(t,URL + "sample_force_no_layout",200,"^sample$",false)
 	expect(t,URL + "get",200,"",true) // nothins is set yet
 	expect(t,URL + "set",200,"^value$",true) 
