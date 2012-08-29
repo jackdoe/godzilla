@@ -14,6 +14,7 @@ func is_admin(ctx *godzilla.Context) (bool) {
 	uri,_ := regexp.Match("^/admin/",[]byte(ctx.R.RequestURI))	
 	return (ip && uri)
 }
+
 func list(ctx *godzilla.Context) {
 	ctx.O["title"] = "godzilla blog!"
 	ctx.O["categories"] = ctx.Query("SELECT * FROM categories ORDER BY name")

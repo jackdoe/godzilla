@@ -10,6 +10,7 @@ import (
 	"text/template"
 	"fmt"
 	"reflect"
+	"runtime"
 )
 type Context struct {
 	W http.ResponseWriter
@@ -115,13 +116,27 @@ func (this *Context) IsXHR() bool {
 func (this *Context) Render(extra ...string) {
 	var ROOT string
 	templates := []string{}	
+	var caller string
 
 	gen := func(s string) string {
 		s += TemplateExt
-		if strings.Contains(s,"/") {
-			return s
-		}
+		if strings.Contains(s,"/") { return s }
 		return Views + s
+	}
+
+	pc, _, _, ok := runtime.Caller(1)
+	if !ok {
+		caller = "unknown"
+	} else {
+		me := runtime.FuncForPC(pc)
+		if me == nil {
+			caller = "unnamed"
+		} else {
+			caller = me.Name()
+		}
+	}
+	if len(extra) == 0 {
+		extra = append(extra,gen(caller))
 	}
 	if (NoLayoutForXHR && this.IsXHR()) || len(this.Layout) == 0 {
 		ROOT = "yield"
@@ -249,4 +264,8 @@ func (this *Context) Replace(table string,input map[string]interface{}) (int64,e
 }
 func (this *Context) DeleteId(table string, id interface{}) {
 	this.DB.Exec("DELETE FROM `"+table+"` WHERE id=?",id)
+}
+
+func (this *Context) Log(format string, v ...interface{}) {
+	log.Printf(format,v...)
 }
