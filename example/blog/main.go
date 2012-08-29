@@ -75,6 +75,7 @@ func modify(ctx *godzilla.Context) {
 	ctx.W.Write(b)
 }
 func show(ctx *godzilla.Context) {
+	url.Append(ctx)
 	o := ctx.FindById("posts",ctx.Splat[1]); 
 	if o == nil { ctx.Error("nothing to do here.. \\o/",404); return }
 	ctx.O["title"] = o["title"]
@@ -90,6 +91,7 @@ func main() {
 
 	godzilla.EnableSessions = false
 	godzilla.Debug = (godzilla.DebugQuery | godzilla.DebugTemplateRendering)
+
 	godzilla.Route("^/$",list)
 	godzilla.Route("^/show/(\\d+)$",show)
 	godzilla.Route("^/admin/modify/(posts|categories|post_category)/(\\d+)$",modify)

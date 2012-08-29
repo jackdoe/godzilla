@@ -110,35 +110,44 @@ func (this *Context) IsXHR() bool {
 }
 
 
-// renders a template, if the template name contains '/' it is rendered with absolute path
-// otherwise it is appended to Views
+// renders a template, if the template name starts with os.PathSeparator it is rendered with absolute path
+// otherwise it is appended to Views 
+// WARNING: all template names are converted to lower case
 // example
 //	ctx.Render("show") // -> ./v/show.html (Views + "show" + ".html")
 //	ctx.Render("/tmp/show") // -> /tmp/show.html ("/tmp/show" + ".html")
+//
+// if left without arguments (ctx.Render())
+// it takes the package_name.function_name
+// and renders v/package_name/function.templateExt
+// so for example if we have package gallery with function Album() and we have ctx.Render() inside it
+// it will render Views + /gallery/ + album + TemplateExt (default: ./v/gallery/album.html)
+
 func (this *Context) Render(extra ...string) {
 	var ROOT string
 	templates := []string{}	
-	var caller string
 
 	gen := func(s string) string {
 		s += TemplateExt
+
 		if len(s) > 0 && s[0] == os.PathSeparator { return s }
-		return Views + s
+		return Views + strings.ToLower(s)
 	}
 
-	pc, _, _, ok := runtime.Caller(1)
-	if !ok {
-		caller = "unknown"
-	} else {
-		me := runtime.FuncForPC(pc)
-		if me == nil {
-			caller = "unnamed"
-		} else {
-			caller = me.Name()
-		}
-	}
-	caller = regexp.MustCompile("(.*?)\\.(\\w+)").ReplaceAllString(caller,"$1"+string(os.PathSeparator)+"$2")
 	if len(extra) == 0 {
+		var caller string
+		pc, _, _, ok := runtime.Caller(1)
+		if !ok {
+			caller = "unknown"
+		} else {
+			me := runtime.FuncForPC(pc)
+			if me == nil {
+				caller = "unnamed"
+			} else {
+				caller = me.Name()
+			}
+		}
+		caller = regexp.MustCompile("(.*?)\\.(\\w+)").ReplaceAllString(caller,"$1"+string(os.PathSeparator)+"$2")
 		extra = append(extra,caller)
 	}
 	if (NoLayoutForXHR && this.IsXHR()) || len(this.Layout) == 0 {
