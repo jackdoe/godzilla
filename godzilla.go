@@ -11,7 +11,9 @@ import (
 	"fmt"
 	"reflect"
 	"runtime"
+	"path"
 	"os"
+	"io/ioutil"
 )
 type Context struct {
 	W http.ResponseWriter
@@ -38,6 +40,8 @@ var (
 	NoLayoutForXHR bool = true
 	TemplateExt string = ".html"
 	EnableSessions bool = true
+	EnableStaticDirectory bool = true
+	StaticDirectory string = "./public"
 	template_regexp = regexp.MustCompile(".*?(\\w+)\\.(\\w+)")
 	sanitize_regexp = regexp.MustCompile("[^a-zA-Z0-9_]")
 )
@@ -64,11 +68,21 @@ func Start(addr string,db *sql.DB) {
 		if EnableSessions {
 			s = session.New(w,r)
 		}
-		path := r.URL.Path
+		rpath := r.URL.Path
+		if EnableStaticDirectory {
+			f := path.Join(StaticDirectory, rpath)
+			_,err := os.Stat(f); if err == nil && (r.Method == "GET" || r.Method == "HEAD") {
+				log.Printf("serving file: %s",f)
+				b, err := ioutil.ReadFile(f); if err == nil {
+					w.Write(b)
+				}
+				return
+			}
+		}
 		for k, v := range routes {
-			matched := k.FindStringSubmatch(path)
+			matched := k.FindStringSubmatch(rpath)
 			if matched != nil {
-				log.Printf("%s @ %%r{%s}",path,k)
+				log.Printf("%s @ %%r{%s}",rpath,k)
 				params := map[string]interface{}{}
 				sparams := map[string]string{}
 				r.ParseForm()
@@ -84,7 +98,7 @@ func Start(addr string,db *sql.DB) {
 				return
 			}
 		}
-		log.Printf("%s - NOT FOUND",path)
+		log.Printf("%s - NOT FOUND",rpath)
 		http.NotFound(w,r)
 	})
 	log.Printf("started: http://%s/",addr)
@@ -303,12 +317,9 @@ func caller(level int) string {
 }
 
 func javascript_template(args ...string) string {
-	var s string
-	gen := func(ident string) string {
-		return fmt.Sprintf("<script type='text/template' id='%s' src='/public/%s.js'></script><script>var %s = $('#%s').html();</script>",ident,ident,ident,ident)
-	}
+	s := ""
 	for _,v := range args {
-		s += gen(v)
+		s += fmt.Sprintf("<script type='text/template' id='%s' src='/public/%s.js'></script><script>var %s = $('#%s').html();</script>",v,v,v,v)
 	}
 	return s
 }
