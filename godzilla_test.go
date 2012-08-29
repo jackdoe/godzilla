@@ -207,12 +207,13 @@ func TestStart(t *testing.T)  {
 
 	// test string sanitize
 	bad := []string{"^^^x","&&&x&&&","^%x","ƒƒåß∂®xƒ∆å∆∆ß∂"}
-	for v,_ := range bad {
+	for _,v := range bad {
 		sanitized := sanitize(v)
 		if (sanitized != "x") {
 			t.Fatalf("expecting x, got: %s",sanitized)
 		}
 	}
+
 
 	cleanup()
 	stop_server()
