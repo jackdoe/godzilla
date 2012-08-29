@@ -317,7 +317,7 @@ func caller(level int) string {
 func javascript_template(args ...string) string {
 	s := ""
 	for _,v := range args {
-		s += fmt.Sprintf("<script type='text/template' id='%s' src='/public/%s.js'></script><script>var %s = $('#%s').html();</script>",v,v,v,v)
+		s += fmt.Sprintf("<script type='text/template' id='%s' src='/%s.js'></script><script>var %s = $('#%s').html();</script>",v,v,v,v)
 	}
 	return s
 }
