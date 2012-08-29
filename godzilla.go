@@ -132,7 +132,7 @@ func (this *Context) Render(extra ...string) {
 		if me == nil {
 			caller = "unnamed"
 		} else {
-			caller = "file_" + me.Name()
+			caller = file + "_" + me.Name()
 		}
 	}
 
