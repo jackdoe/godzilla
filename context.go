@@ -29,13 +29,12 @@ type Context struct {
 // renders a template, if the template name starts with os.PathSeparator it is rendered with absolute path
 // otherwise it is appended to Views 
 // WARNING: all template names are converted to lower case
-// example
-//	ctx.Render("show") // -> ./v/show.html (Views + "show" + ".html")
-//	ctx.Render("/tmp/show") // -> /tmp/show.html ("/tmp/show" + ".html")
+// 
+//		ctx.Render("show") // -> ./v/show.html (Views + "show" + ".html")
+//		ctx.Render("/tmp/show") // -> /tmp/show.html ("/tmp/show" + ".html")
 //
-// if left without arguments (ctx.Render())
-// it takes the package_name.function_name
-// and renders v/package_name/function.templateExt
+// if left without arguments (ctx.Render()) - it takes the package_name.function_name and renders 
+//	v/package_name/function.templateExt
 // so for example if we have package gallery with function Album() and we have ctx.Render() inside it
 // it will render Views + /gallery/ + album + TemplateExt (default: ./v/gallery/album.html)
 func (this *Context) Render(extra ...string) {
