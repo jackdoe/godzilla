@@ -8,7 +8,6 @@ import (
 
 //	var calendar_cell; $.get('calendar/cell.jst',function(data) { calendar_cell = data });
 //	var calendar_row; $.get('calendar/row.jst',function(data) { calendar_row = data });
-
 func Template_js(args ...string) string {
 	s := ""
 	for _,v := range args {
