@@ -91,6 +91,10 @@ lets go over the fields one by one and imagine we are accessing the object in a 
 * ctx.Params - simple mapped parameters POST+GET /?a=4 will have `map[string]interface{}{"a":"4"}`
 * ctx.Sparams - same as Params but the value is of type string instead interface{} so /?a=4 will have `map[string]string{"a":"4"}`
 
+## ctx.Render()
+    
+
+
 ### godoc
 
 ```
@@ -108,7 +112,7 @@ const (
     DebugQuery             = 1
     DebugQueryResult       = 2
     DebugTemplateRendering = 4
-    TypeJSON               = "application/json" //http://stackoverflow.com/questions/477816/what-format-should-i-use-for-the-right-json-content-type
+    TypeJSON               = "application/json"
     TypeHTML               = "text/html"
     TypeText               = "text/plain"
 )
@@ -131,6 +135,15 @@ func Route(pattern string, handler func(*Context))
     example: godzilla.Route("/product/show/(\\d+)",product_show)
 
 func Start(addr string, db *sql.DB)
+    starts the http server example:
+
+    db, _ := sql.Open("sqlite3", "./foo.db")
+    defer db.Close()
+    session.Init(db,"session")
+    session.CookieKey = "go.is.awesome"
+    session.CookieDomain = "localhost"
+    godzilla.Route("/product/show/(\\d+)",product_show)
+    godzilla.Start("localhost:8080",db)
 
 
 TYPES
@@ -149,6 +162,8 @@ type Context struct {
 
 func (this *Context) ContentType(s string)
 
+func (this *Context) DeleteBy(table string, field string, v interface{})
+
 func (this *Context) DeleteId(table string, id interface{})
 
 func (this *Context) Error(message string, code int)
@@ -157,6 +172,8 @@ func (this *Context) Error(message string, code int)
     ctx.Error("something very very bad just happened",500)
     // or
     ctx.Error("something very very bad just happened",http.StatusInternalServerError)
+
+func (this *Context) FindBy(table string, field string, v interface{}) map[string]interface{}
 
 func (this *Context) FindById(table string, id interface{}) map[string]interface{}
 
@@ -194,6 +211,19 @@ func (this *Context) Redirect(url string)
     ctx.Redirect("http://golang.org")
 
 func (this *Context) Render(extra ...string)
+    renders a template, if the template name starts with os.PathSeparator it
+    is rendered with absolute path otherwise it is appended to Views
+    WARNING: all template names are converted to lower case example
+
+    ctx.Render("show") // -> ./v/show.html (Views + "show" + ".html")
+    ctx.Render("/tmp/show") // -> /tmp/show.html ("/tmp/show" + ".html")
+
+    if left without arguments (ctx.Render()) it takes the
+    package_name.function_name and renders
+    v/package_name/function.templateExt so for example if we have package
+    gallery with function Album() and we have ctx.Render() inside it it will
+    render Views + /gallery/ + album + TemplateExt (default:
+    ./v/gallery/album.html)
 
 func (this *Context) Replace(table string, input map[string]interface{}) (int64, error)
     POC: bad performance updates database fields based on map's keys - every
@@ -206,7 +236,6 @@ func (this *Context) Write(s string)
 
 
 SUBDIRECTORIES
-
     example
 ```
 
