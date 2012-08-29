@@ -75,6 +75,7 @@ func Start(addr string,db *sql.DB) {
 			if err == nil && (!stat.IsDir()) && (r.Method == "GET" || r.Method == "HEAD") {
 				log.Printf("serving file: %s %s",f,rpath)
 				http.ServeFile(w,r,path.Clean(f))
+				return
 			}
 		}
 		for k, v := range routes {
