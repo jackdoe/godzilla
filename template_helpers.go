@@ -10,7 +10,8 @@ import (
 func Template_js(args ...string) string {
 	s := ""
 	for _,v := range args {
-		s += fmt.Sprintf("<script type='text/template' id='%s' src='/%s.js'></script><script>var %s = $('#%s').html();</script>",v,v,strings.Replace(v,"/","_",-1),v)
+		us := strings.Replace(v,"/","_",-1)
+		s += fmt.Sprintf("<script type='text/template' id='%s' src='/%s.js'></script><script>var %s = $('#%s').html();</script>",us,v,us,us)
 	}
 	return s
 }
