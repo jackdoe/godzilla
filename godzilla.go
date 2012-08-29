@@ -39,7 +39,7 @@ var (
 	TemplateExt string = ".html"
 	EnableSessions bool = true
 	template_regexp = regexp.MustCompile(".*?(\\w+)\\.(\\w+)")
-	sanitize_regexp = regexp.MustCompile("^([a-zA-Z0-9_]+?)*$")
+	sanitize_regexp = regexp.MustCompile("[^a-zA-Z0-9_]")
 )
 
 var routes = map[*regexp.Regexp]func(*Context)(){}
@@ -300,5 +300,5 @@ func (this *Context) Log(format string, v ...interface{}) {
 }
 
 func sanitize(s string) string {
-	return sanitize_regexp.ReplaceAllString(s,"$1")
+	return sanitize_regexp.ReplaceAllString(s,"")
 }
