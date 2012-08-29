@@ -152,7 +152,7 @@ func TestStart(t *testing.T)  {
 	if err != nil { t.Fatalf("%s",err)}
 	err = ioutil.WriteFile(Views + "sample" + TemplateExt, []byte(`{{define "yield"}}sample{{end}}`), 0644)
 	if err != nil { t.Fatalf("%s",err)}
-	err = ioutil.WriteFile(Views + "godzilla.sample_no_template_name" + TemplateExt, []byte(`{{define "yield"}}sample_no_template_name{{end}}`), 0644)
+	err = ioutil.WriteFile(Views + "sample_no_template_name" + TemplateExt, []byte(`{{define "yield"}}sample_no_template_name{{end}}`), 0644)
 	if err != nil { t.Fatalf("%s",err)}
 	err = ioutil.WriteFile(Views + "session" + TemplateExt, []byte(`{{define "yield"}}{{.key}}{{end}}`), 0644)
 	if err != nil { t.Fatalf("%s",err)}
