@@ -122,7 +122,7 @@ func (this *Context) Render(extra ...string) {
 
 	gen := func(s string) string {
 		s += TemplateExt
-		if strings.Contains(s,"/") { return s }
+		if len(s) > 0 && s[0] == os.PathSeparator { return s }
 		return Views + s
 	}
 
