@@ -124,7 +124,7 @@ func (this *Context) Render(extra ...string) {
 		return Views + s
 	}
 
-	pc, file, _, ok := runtime.Caller(1)
+	pc, _, _, ok := runtime.Caller(2)
 	if !ok {
 		caller = "unknown"
 	} else {
@@ -132,7 +132,7 @@ func (this *Context) Render(extra ...string) {
 		if me == nil {
 			caller = "unnamed"
 		} else {
-			caller = file + "_" + me.Name()
+			caller = me.Name()
 		}
 	}
 
