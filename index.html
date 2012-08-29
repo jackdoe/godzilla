@@ -1,36 +1,33 @@
 <!DOCTYPE html>
 <html>
-
   <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Godzilla : go micro-mini-nano web framework" />
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
 
-    <title>Godzilla</title>
+    <title>Godzilla by jackdoe</title>
   </head>
 
   <body>
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/jackdoe/godzilla">View on GitHub</a>
+    <header>
+      <div class="container">
+        <h1>Godzilla</h1>
+        <h2>go micro-mini-nano web framework</h2>
 
-          <h1 id="project_title">Godzilla</h1>
-          <h2 id="project_tagline">go micro-mini-nano web framework</h2>
+        <section id="downloads">
+          <a href="https://github.com/jackdoe/godzilla/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/jackdoe/godzilla/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/jackdoe/godzilla" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
 
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/jackdoe/godzilla/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/jackdoe/godzilla/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
+    <div class="container">
+      <section id="main_content">
         <h2>just try it out</h2>
 
 <pre><code>$ go get github.com/jackdoe/godzilla
@@ -38,25 +35,225 @@ $ git clone https://github.com/jackdoe/godzilla.git
 $ cd godzilla/example/blog &amp;&amp; go run main.go
 </code></pre>
 
-<hr><p>open http://localhost:8080 and enjoy :)</p>
+<p>open http://localhost:8080 and enjoy :) (/admin/ is for the admin panel)</p>
 
-<blockquote>
-<p>http://localhost:8080/admin/ is for the admin panel </p>
-</blockquote>
+<hr><p>check out the exampe directory for some apps - there is as simple blog, simple modular app with blog and url shortener, and one small sample app (does nothing usefull)</p>
 
-<hr><p><img src="http://img690.imageshack.us/img690/576/screenshot20120828at926.png" alt="post list"><img src="http://img502.imageshack.us/img502/2151/screenshot20120828at927.png" alt="single post"><img src="http://img845.imageshack.us/img845/2151/screenshot20120828at927.png" alt="admin-panel"></p>
+<p>i think that using the modular approach is very nice,here is a sample directory structure:</p>
+
+<pre><code>app/
+app/main.go - import ("./blog" "./shortener" "./gallery")
+app/blog/blog.go - has functions List() and Show()
+app/shortener/shortener.go - has functions Redirect() and Append()
+app/gallery/gallery.go - has functions Albums(), Album(), and Picture()
+app/v/ (views)
+app/v/blog/show.html
+app/v/blog/list.html
+app/v/gallery/albums.html
+app/v/gallery/album.html
+app/v/gallery/picture.html
+</code></pre>
+
+<p>now lets create some routes:</p>
+
+<pre><code>func main() {
+    db, _ := sql.Open("sqlite3", "./lite.db")
+    defer db.Close()
+    godzilla.EnableSessions = false
+    godzilla.Route("^/$",blog.List)
+    godzilla.Route("^/show/(\\d+)$",blog.Show)
+    godzilla.Route("^/gallery/albums$",gallery.Albums)
+    godzilla.Route("^/gallery/album/(\\d+)$",gallery.Album)
+    godzilla.Route("^/gallery/picture/(\\d+)$",gallery.Picture)
+    godzilla.Route("^/url/(\\d+)",url.Redirect)
+    godzilla.Route("^/url/append/(.*)",url.Append)
+    godzilla.Start("localhost:8080",db)
+}
+
+</code></pre>
+
+<p>if we access <em>/url/append/<a href="http://google.com">http://google.com</a></em> godzilla's router will match <em>"^/url/append/(.*)"</em>
+and call url.Append(ctx) with one argument of type *Context, this is hot it could look like:</p>
+
+<pre><code>func Append(ctx *godzilla.Context) {
+    id,_ := ctx.Replace("url",map[string]interface{}{"url":ctx.Splat[1]})
+    ctx.Write(fmt.Sprintf("/url/%d",id))
+}
+</code></pre>
+
+<p>so after accessing <em>/url/append/<a href="http://google.com">http://google.com</a></em> you will see "/url/%d" (for example /url/44)
+and if you access <em>/url/44</em> the router will call url.Rediret() with *Context</p>
+
+<pre><code>func Redirect(ctx *godzilla.Context) {
+    u := ctx.FindById("url",ctx.Splat[1])
+    if u == nil {
+        ctx.Error("not found",404)
+    } else {
+        ctx.Redirect(reflect.ValueOf(u["url"]).String())
+    }
+}
+</code></pre>
+
+<h2>Context</h2>
+
+<p>the whole concept is very simple, every function is given context as an argument
+in this context you have link to the SQL database, basic database functions, http request and writer, and more</p>
+
+<pre><code>type Context struct {
+    W http.ResponseWriter
+    R *http.Request
+    S *session.SessionObject
+    DB *sql.DB
+    O map[string]interface{}
+    Layout string
+    Splat []string
+    Params map[string]interface{}
+    Sparams map[string]string
+}
+</code></pre>
+
+<p>lets go over the fields one by one and imagine we are accessing the object in a function called <strong>Show(ctx *godzilla.Context)</strong> in module <strong>blog</strong></p>
+
+<ul>
+<li>ctx.W - is of type http.ResponseWriter we can use it to write all kids of stuff to it(headers, body, etc..) <a href="http://golang.org/pkg/net/http/#ResponseWriter">http://golang.org/pkg/net/http/#ResponseWriter</a>
+</li>
+<li>ctx.R - is the http.Request <a href="http://golang.org/pkg/net/http/#Request">http://golang.org/pkg/net/http/#Request</a>
+</li>
+<li>ctx.S - the SessionObject - ctx.S.Get('is_user_logged_in') <a href="http://github.com/jackdoe/session">http://github.com/jackdoe/session</a>
+</li>
+<li>ctx.DB - database/sql <a href="http://golang.org/pkg/database/sql/">http://golang.org/pkg/database/sql/</a> <a href="http://code.google.com/p/go-wiki/source/browse/SQLDrivers.wiki?repo=wiki">sql driver list</a>
+</li>
+<li>ctx.O - output map, used as templates argument when called ctx.Render()</li>
+<li>ctx.Layout - layout template (can be empty)</li>
+<li>ctx.Splat - this is where regexp matched results from the route comes - <code>/url/(\\d+)</code> - <code>/url/1</code> will put in Splat <code>[]{"/url/1","1"}</code> so <code>ctx.Splat[1]</code> is <code>(\\d+)</code> </li>
+<li>ctx.Params - simple mapped parameters POST+GET /?a=4 will have <code>map[string]interface{}{"a":"4"}</code>
+</li>
+<li>ctx.Sparams - same as Params but the value is of type string instead interface{} so /?a=4 will have <code>map[string]string{"a":"4"}</code>
+</li>
+</ul><h3>godoc</h3>
+
+<pre><code>PACKAGE
+
+package godzilla
+    import "github.com/jackdoe/godzilla"
+
+    micro web framework. it is not very generic, but it makes writing small
+    apps very fast
+
+CONSTANTS
+
+const (
+    DebugQuery             = 1
+    DebugQueryResult       = 2
+    DebugTemplateRendering = 4
+    TypeJSON               = "application/json" //http://stackoverflow.com/questions/477816/what-format-should-i-use-for-the-right-json-content-type
+    TypeHTML               = "text/html"
+    TypeText               = "text/plain"
+)
+
+
+VARIABLES
+
+var (
+    Debug          int    = 0
+    Views          string = "./v/"
+    NoLayoutForXHR bool   = true
+    TemplateExt    string = ".html"
+    EnableSessions bool   = true
+)
+
+
+FUNCTIONS
+
+func Route(pattern string, handler func(*Context))
+    example: godzilla.Route("/product/show/(\\d+)",product_show)
+
+func Start(addr string, db *sql.DB)
+
+
+TYPES
+
+type Context struct {
+    W       http.ResponseWriter
+    R       *http.Request
+    S       *session.SessionObject
+    DB      *sql.DB
+    O       map[string]interface{}
+    Layout  string
+    Splat   []string
+    Params  map[string]interface{}
+    Sparams map[string]string
+}
+
+func (this *Context) ContentType(s string)
+
+func (this *Context) DeleteId(table string, id interface{})
+
+func (this *Context) Error(message string, code int)
+    example:
+
+    ctx.Error("something very very bad just happened",500)
+    // or
+    ctx.Error("something very very bad just happened",http.StatusInternalServerError)
+
+func (this *Context) FindById(table string, id interface{}) map[string]interface{}
+
+func (this *Context) IsXHR() bool
+    returns true/false if the request is XHR example:
+
+    if ctx.IsXHR() {
+        ctx.Layout = "special-ajax-lajout"
+        // or
+        ctx.Render("ajax")
+    }
+
+func (this *Context) Log(format string, v ...interface{})
+
+func (this *Context) Query(query string, args ...interface{}) []map[string]interface{}
+    WARNING: POC, bad performance, do not use in production.
+
+    Returns slice of map[query_result_fields]query_result_values, so for
+    example table with fields id,data,stamp will return [{id: xx,data: xx,
+    stamp: xx},{id: xx,data: xx,stamp: xx}] example:
+
+    ctx.O["SessionList"] = ctx.Query("SELECT * FROM session")
+
+    and then in the template:
+
+    {{range .SessionList}}
+        id: {{.id}}&lt;br&gt;
+        data: {{.data}}&lt;br&gt;
+        stamp: {{.stamp}}
+    {{end}}
+
+func (this *Context) Redirect(url string)
+    example:
+
+    ctx.Redirect("http://golang.org")
+
+func (this *Context) Render(extra ...string)
+
+func (this *Context) Replace(table string, input map[string]interface{}) (int64, error)
+    POC: bad performance updates database fields based on map's keys - every
+    key that begins with _ is skipped
+
+func (this *Context) Write(s string)
+    shorthand for writing strings into the http writer example:
+
+    ctx.Write("luke, i am your father")
+
+
+SUBDIRECTORIES
+
+    example
+</code></pre>
+
+<h3>looks of the blog example:</h3>
+
+<p><img src="http://img690.imageshack.us/img690/576/screenshot20120828at926.png" alt="post list"><img src="http://img502.imageshack.us/img502/2151/screenshot20120828at927.png" alt="single post"><img src="http://img845.imageshack.us/img845/2151/screenshot20120828at927.png" alt="admin-panel"></p>
       </section>
     </div>
 
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Godzilla maintained by <a href="https://github.com/jackdoe">jackdoe</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
-      </footer>
-    </div>
-
     
-
   </body>
 </html>
