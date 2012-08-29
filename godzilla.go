@@ -71,13 +71,13 @@ func Start(addr string,db *sql.DB) {
 		rpath := r.URL.Path
 		if EnableStaticDirectory {
 			f := path.Join(StaticDirectory, rpath)
-			stat,err := os.Stat(f); 
-			if err == nil && ! stat.IsDir() && (r.Method == "GET" || r.Method == "HEAD") {
+			stat,err := os.Stat(f);
+			log.Printf("%s",f) 
+			if err == nil && (!stat.IsDir()) && (r.Method == "GET" || r.Method == "HEAD") {
 				log.Printf("serving file: %s %s",f,rpath)
-				b, err := ioutil.ReadFile(f); if err == nil {
+				b, err := ioutil.ReadFile(path.Clean(f)); if err == nil {
 					w.Write(b)
 				}
-				return
 			}
 		}
 		for k, v := range routes {
