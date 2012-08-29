@@ -2,10 +2,11 @@ package url
 import (
 	"github.com/jackdoe/godzilla"
 	"reflect"
+	"fmt"
 )
 func Append(ctx *godzilla.Context) {
-	ctx.Replace("url",map[string]interface{}{"url":ctx.Splat[1]})
-	ctx.Redirect(ctx.Splat[1])
+	id,_ := ctx.Replace("url",map[string]interface{}{"url":ctx.Splat[1]})
+	ctx.Write(fmt.Sprintf("/url/%d",id))
 }
 
 func Redirect(ctx *godzilla.Context) {
