@@ -12,10 +12,25 @@ check out the exampe directory for some apps - there is as simple blog, simple m
 
 ## soo, this is how it looks
 
-app/main.go:
+first we will create sqlite3 database
+
+```
+sqlite3 ./foo.db
+CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY,data TEXT NOT NULL);
+INSERT INTO posts(data) VALUES('godzilla was here');
+INSERT INTO posts(data) VALUES('godzilla left');
+```
+
+then we will write the main package 
+
+./main.go:
 ```
 package main
-import ("database/sql" "github.com/jackdoe/godzilla" _ "github.com/mattn/go-sqlite3" )
+import (
+    "database/sql"
+    _ "github.com/mattn/go-sqlite3"
+    "github.com/jackdoe/godzilla"
+)
 func list(ctx *godzilla.Context) {
     ctx.O["posts"] = ctx.Query("SELECT * FROM posts")
     ctx.Render()
@@ -24,13 +39,14 @@ func list(ctx *godzilla.Context) {
 func main() {
     db, _ := sql.Open("sqlite3", "./foo.db")
     defer db.Close()
-    db.Exec("CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY,data TEXT NOT NULL)")
     godzilla.Route("^/$", list)
     godzilla.Start("localhost:8080", db)
 }
 ```
 
-app/v/main/list.html:
+and the list view
+
+./v/main/list.html:
 ```
 {{define "yield"}}
     <ul>
@@ -42,12 +58,9 @@ app/v/main/list.html:
     </ul>
 {{end}}
 ```
-then you should insert some info into the table:
-```
-sqlite3 ./foo.db
-INSERT INTO posts(data) VALUES('godzilla was here');
-INSERT INTO posts(data) VALUES('godzilla left');
-```
+
+and you are set to go :) compile `go build main.go && ./main` and open http://localhost:8080 to see the product of your code
+this is actualy in the `example/simple` directory [https://github.com/jackdoe/godzilla/tree/master/example/simple](https://github.com/jackdoe/godzilla/tree/master/example/simple)
 
 ### random blabering
 
