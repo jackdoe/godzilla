@@ -60,6 +60,7 @@
 		</blockquote>
 	{{end}}
 	{{if $global.is_admin}}
+	{{ js "form_post" "form_category"}}
 	<script>
 		function get(method, url, callback, input) {
 			var reformat = function(array){
@@ -92,23 +93,9 @@
 				data["id"] = id
 				data["_type"] = t
 				if (t == "posts") {
-					s.html(_.template(
-						"<form class='form-inline'>" +
-						"<% if (data.id) { %><input type=hidden name='id' value='<%= data.id %>'><% } %>"+
-						"<input class='input-xxlarge' placeholder='title' type=text name='title' value='<%= (data.title || '') %>'><br>" +
-						"<textarea class='input-xxlarge' placeholder='long text' rows='20' name='long'><%= (data.long || '') %></textarea><br>"+
-						"<input class='btn btn-primary save' type='button' name='_go' value='Save!' data-type='<%= data._type %>'>" +
-						"</form>"
-						,{data: data})
-					)
+					s.html(_.template(form_post,{data: data}))
 				} else {
-					s.html(_.template(
-						"<form class='form-inline'>" +
-						"<% if (data.id) { %><input type=hidden name='id' value='<%= data.id %>'><% } %>"+
-						"<input class='input-xxlarge' placeholder='name' type=text name='name' value='<%= (data.name || '') %>'>" +
-						"<input class='btn btn-primary save' type='button' name='_go' value='Save!' data-type='<%= data._type %>'>" +
-						"</form>"
-						,{data: data}))
+					s.html(_.template(form_category,{data: data}))
 				}
 			})
 			return false
