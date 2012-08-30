@@ -42,6 +42,55 @@ $ cd godzilla/example/blog &amp;&amp; go build main.go &amp;&amp; ./main
 
 <hr><p>check out the exampe directory for some apps - there is as simple blog, simple modular app with blog and url shortener, and one small sample app (does nothing usefull)</p>
 
+<h2>soo, this is how it looks</h2>
+
+<p>first we will create sqlite3 database</p>
+
+<pre><code>$ sqlite3 ./foo.db
+CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY,data TEXT NOT NULL);
+INSERT INTO posts(data) VALUES('godzilla was here');
+INSERT INTO posts(data) VALUES('godzilla left');
+</code></pre>
+
+<p>then we will write the main package  <code>./main.go</code>:</p>
+
+<pre><code>package main
+import (
+    "database/sql"
+    _ "github.com/mattn/go-sqlite3"
+    "github.com/jackdoe/godzilla"
+)
+func list(ctx *godzilla.Context) {
+    ctx.O["posts"] = ctx.Query("SELECT * FROM posts")
+    ctx.Render()
+}
+
+func main() {
+    db, _ := sql.Open("sqlite3", "./foo.db")
+    defer db.Close()
+    godzilla.Route("^/$", list)
+    godzilla.Start("localhost:8080", db)
+}
+</code></pre>
+
+<p>and the list view <code>./v/main/list.html</code></p>
+
+<pre><code>{{define "yield"}}
+    &lt;ul&gt;
+        {{range .posts}}
+            &lt;li&gt;
+                {{.data}}
+            &lt;/li&gt;
+        {{end}}
+    &lt;/ul&gt;
+{{end}}
+</code></pre>
+
+<p>and you are set to go :) compile <code>go build main.go &amp;&amp; ./main</code> and open http://localhost:8080 to see the product of your code.
+This is actualy in the <code>example/simple</code> directory <a href="https://github.com/jackdoe/godzilla/tree/master/example/simple">https://github.com/jackdoe/godzilla/tree/master/example/simple</a></p>
+
+<h3>random blabering</h3>
+
 <p>i think that using the modular approach is very nice,here is a sample directory structure:</p>
 
 <pre><code>app/
