@@ -148,8 +148,8 @@ func Start(addr string, db *sql.DB)
     godzilla.Start("localhost:8080",db)
 
 func Template_js(args ...string) string
-    {{ js "calendar_cell" "calendar_row"}} will read and render reads
-    /static/calendar_cell.js and generates
+    {{ js "calendar_cell" "calendar_row"}} will read
+    /static/calendar_cell.js and generate
 
     <script type='text/template' id='template_calendar_cell'>
     //actual calendar_cell.js content
@@ -257,7 +257,6 @@ func (this *Context) Write(s string)
 SUBDIRECTORIES
 
     example
-
 ```
 
 
