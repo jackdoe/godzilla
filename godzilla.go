@@ -10,6 +10,7 @@ import (
 	"path"
 	"regexp"
 	"runtime"
+	"strings"
 )
 
 const (
@@ -23,14 +24,18 @@ const (
 
 var (
 	Debug                 int    = 0
-	Views                 string = "./v/"
+	ViewDirectory         string = "v"
 	NoLayoutForXHR        bool   = true
 	TemplateExt           string = ".html"
 	EnableSessions        bool   = true
 	EnableStaticDirectory bool   = true
-	StaticDirectory       string = "./public"
-	template_regexp              = regexp.MustCompile(".*?(\\w+)\\.(\\w+)")
-	sanitize_regexp              = regexp.MustCompile("[^a-zA-Z0-9_]")
+	StaticDirectory       string = "public"
+
+	static_dir string
+	views_dir  string
+
+	template_regexp = regexp.MustCompile(".*?(\\w+)\\.(\\w+)")
+	sanitize_regexp = regexp.MustCompile("[^a-zA-Z0-9_]")
 )
 
 var routes = map[*regexp.Regexp]func(*Context){}
@@ -50,6 +55,10 @@ func Route(pattern string, handler func(*Context)) {
 // 		godzilla.Route("/product/show/(\\d+)",product_show)
 // 		godzilla.Start("localhost:8080",db)
 func Start(addr string, db *sql.DB) {
+
+	static_dir = static_directory()
+	views_dir = views_directory()
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		var s *session.SessionObject
 		if EnableSessions {
@@ -57,7 +66,7 @@ func Start(addr string, db *sql.DB) {
 		}
 		rpath := r.URL.Path
 		if EnableStaticDirectory {
-			f := path.Join(StaticDirectory, path.Clean(rpath))
+			f := path.Join(static_dir, path.Clean(rpath))
 			stat, err := os.Stat(f)
 			if err == nil && (!stat.IsDir()) && (r.Method == "GET" || r.Method == "HEAD") {
 				log.Printf("FILE: %s {URI: %s}", f, rpath)
@@ -104,4 +113,36 @@ func caller(level int) string {
 		return "unnamed"
 	}
 	return me.Name()
+}
+
+// taken from https://github.com/hoisie/web
+func root() string {
+	arg0 := path.Clean(os.Args[0])
+	wd, _ := os.Getwd()
+	if starts_with_slash(arg0) {
+		return arg0
+	}
+	return path.Join(wd, arg0)
+}
+func static_directory() string {
+	return absolute_or_relative(StaticDirectory)
+}
+func views_directory() string {
+	return absolute_or_relative(ViewDirectory)
+}
+func template_filepath(s string) string {
+	s += TemplateExt
+	if starts_with_slash(s) {
+		return s
+	}
+	return path.Join(views_dir, strings.ToLower(s))
+}
+func absolute_or_relative(s string) string {
+	if starts_with_slash(s) {
+		return s
+	}
+	return path.Join(root(), s)
+}
+func starts_with_slash(s string) bool {
+	return strings.HasPrefix(s, string(os.PathSeparator))
 }

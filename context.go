@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path"
 	"reflect"
 	"strings"
 	"text/template"
@@ -41,14 +40,6 @@ func (this *Context) Render(extra ...string) {
 	var ROOT string
 	templates := []string{}
 
-	gen := func(s string) string {
-		s += TemplateExt
-		if len(s) > 0 && s[0] == os.PathSeparator {
-			return s
-		}
-		return path.Join(Views, strings.ToLower(s))
-	}
-
 	if len(extra) == 0 {
 		c := caller(2)
 		c = template_regexp.ReplaceAllString(c, "$1"+string(os.PathSeparator)+"$2")
@@ -58,10 +49,10 @@ func (this *Context) Render(extra ...string) {
 		ROOT = "yield"
 	} else {
 		ROOT = "layout"
-		templates = append(templates, gen(this.Layout))
+		templates = append(templates, template_filepath(this.Layout))
 	}
 	for _, v := range extra {
-		templates = append(templates, gen(v))
+		templates = append(templates, template_filepath(v))
 	}
 	if (Debug & DebugTemplateRendering) > 0 {
 		log.Printf("loading: %#v", templates)

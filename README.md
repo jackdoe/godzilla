@@ -148,9 +148,10 @@ func Start(addr string, db *sql.DB)
     godzilla.Start("localhost:8080",db)
 
 func Template_js(args ...string) string
-    var calendar_cell; $.get('/calendar/cell.jst',function(data) {
-    calendar_cell = data }); var calendar_row;
-    $.get('/calendar/row.jst',function(data) { calendar_row = data });
+    {{ js "calendar/cell" "calendar/row"}}
+
+    <script type='text/template' id='calendar/cell' src='/calendar/cell.js'></script><script>var calendar_cell = $('#calendar/cell').html();</script>
+    <script type='text/template' id='calendar/row' src='/calendar/row.js'></script><script>var calendar_row = $('#calendar/row').html();</script>
 
 
 TYPES
@@ -220,19 +221,17 @@ func (this *Context) Redirect(url string)
 func (this *Context) Render(extra ...string)
     renders a template, if the template name starts with os.PathSeparator it
     is rendered with absolute path otherwise it is appended to Views
-    WARNING: all template names are converted to lower case
+    WARNING: all template names are converted to lower case example
 
     ctx.Render("show") // -> ./v/show.html (Views + "show" + ".html")
     ctx.Render("/tmp/show") // -> /tmp/show.html ("/tmp/show" + ".html")
 
-    if left without arguments (ctx.Render()) - it takes the
+    if left without arguments (ctx.Render()) it takes the
     package_name.function_name and renders
-
-    v/package_name/function.templateExt
-
-    so for example if we have package gallery with function Album() and we
-    have ctx.Render() inside it it will render Views + /gallery/ + album +
-    TemplateExt (default: ./v/gallery/album.html)
+    v/package_name/function.templateExt so for example if we have package
+    gallery with function Album() and we have ctx.Render() inside it it will
+    render Views + /gallery/ + album + TemplateExt (default:
+    ./v/gallery/album.html)
 
 func (this *Context) RenderJSON(j interface{}, error_code int) error
 

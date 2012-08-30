@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path"
 	"reflect"
 	"regexp"
 	"testing"
@@ -131,8 +132,6 @@ func TestStart(t *testing.T) {
 	cleanup()
 	var err error
 	db, _ := sql.Open("sqlite3", "./foo.db")
-	Views = "./v/"
-	os.Mkdir(Views, 0770)
 	client = &http.Client{}
 	jar := &myjar{}
 	jar.jar = make(map[string][]*http.Cookie)
@@ -152,23 +151,23 @@ func TestStart(t *testing.T) {
 	Route("^/redir_to_blabla$", redir_to_blabla)
 	Route("^/errorize$", errorize)
 	Route("^/splat/(\\d+)_(\\d+)$", splat)
-
+	ViewDirectory = path.Join(os.TempDir(), "godzilla-test-view-directory")
 	start_server(db)
 	expect(t, URL, 404, nil, false)
 	expect(t, URL+"blabla", 200, "blabla", false)
-
+	os.Mkdir(ViewDirectory, 0700)
 	/* create 2 simple templates */
-	err = ioutil.WriteFile(Views+"layout"+TemplateExt, []byte(`{{define "layout"}}<body>{{template "yield" .}}</body>{{end}}`), 0644)
+	err = ioutil.WriteFile(template_filepath("layout"), []byte(`{{define "layout"}}<body>{{template "yield" .}}</body>{{end}}`), 0644)
 	if err != nil {
 		t.Fatalf("%s", err)
 	}
-	err = ioutil.WriteFile(Views+"sample"+TemplateExt, []byte(`{{define "yield"}}sample{{end}}`), 0644)
+	err = ioutil.WriteFile(template_filepath("sample"), []byte(`{{define "yield"}}sample{{end}}`), 0644)
 	if err != nil {
 		t.Fatalf("%s", err)
 	}
 	// err = ioutil.WriteFile(Views + "sample_no_template_name" + TemplateExt, []byte(`{{define "yield"}}sample_no_template_name{{end}}`), 0644)
 	// if err != nil { t.Fatalf("%s",err)}
-	err = ioutil.WriteFile(Views+"session"+TemplateExt, []byte(`{{define "yield"}}{{.key}}{{end}}`), 0644)
+	err = ioutil.WriteFile(template_filepath("session"), []byte(`{{define "yield"}}{{.key}}{{end}}`), 0644)
 	if err != nil {
 		t.Fatalf("%s", err)
 	}
@@ -252,10 +251,7 @@ func TestStart(t *testing.T) {
 	stop_server()
 }
 func cleanup() {
-	gen := func(s string) string {
-		return Views + s + TemplateExt
-	}
-	f := []string{gen("layout"), gen("session"), gen("sample"), Views, "./foo.db"}
+	f := []string{template_filepath("layout"), template_filepath("session"), template_filepath("sample"), views_dir, "./foo.db"}
 	for _, file := range f {
 		os.Remove(file)
 	}
