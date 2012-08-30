@@ -14,7 +14,7 @@ check out the exampe directory for some apps - there is as simple blog, simple m
 
 first we will create sqlite3 database
 ```
-sqlite3 ./foo.db
+$ sqlite3 ./foo.db
 CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY,data TEXT NOT NULL);
 INSERT INTO posts(data) VALUES('godzilla was here');
 INSERT INTO posts(data) VALUES('godzilla left');
@@ -54,8 +54,8 @@ and the list view `./v/main/list.html`
 {{end}}
 ```
 
-and you are set to go :) compile `go build main.go && ./main` and open http://localhost:8080 to see the product of your code
-this is actualy in the `example/simple` directory [https://github.com/jackdoe/godzilla/tree/master/example/simple](https://github.com/jackdoe/godzilla/tree/master/example/simple)
+and you are set to go :) compile `go build main.go && ./main` and open http://localhost:8080 to see the product of your code.
+This is actualy in the `example/simple` directory [https://github.com/jackdoe/godzilla/tree/master/example/simple](https://github.com/jackdoe/godzilla/tree/master/example/simple)
 
 ### random blabering
 
