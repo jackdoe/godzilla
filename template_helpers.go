@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path"
+	"log"
 )
 
 //{{ js "calendar_cell" "calendar_row"}} will read and render
@@ -14,7 +15,11 @@ func Template_js(args ...string) string {
 	}
 	s := ""
 	for _, v := range args {
-		data, e := ioutil.ReadFile(path.Join(static_dir, path.Clean(v)) + ".js")
+		f := path.Join(static_dir, path.Clean(v)) + ".js"
+		if (Debug & DebugTemplateRendering) > 0 {
+			log.Printf("template_js: %s",f)
+		}
+		data, e := ioutil.ReadFile(f)
 		if e != nil {
 			s += fmt.Sprintf("<script type='text/template' id='template_%s'>%s</script><script>var %s = $('#template_%s').html();</script>", v, string(data), v, v)
 		}
