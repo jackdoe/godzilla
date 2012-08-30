@@ -35,7 +35,7 @@
 
 <pre><code>$ go get github.com/jackdoe/godzilla
 $ git clone https://github.com/jackdoe/godzilla.git
-$ cd godzilla/example/blog &amp;&amp; go run main.go
+$ cd godzilla/example/blog &amp;&amp; go build main.go &amp;&amp; ./main
 </code></pre>
 
 <p>open http://localhost:8080 and enjoy :) (/admin/ is for the admin panel)</p>
@@ -161,12 +161,12 @@ VARIABLES
 
 var (
     Debug                 int    = 0
-    Views                 string = "./v/"
+    ViewDirectory         string = "v"
     NoLayoutForXHR        bool   = true
     TemplateExt           string = ".html"
     EnableSessions        bool   = true
     EnableStaticDirectory bool   = true
-    StaticDirectory       string = "./public"
+    StaticDirectory       string = "public"
 )
 
 
@@ -187,9 +187,15 @@ func Start(addr string, db *sql.DB)
     godzilla.Start("localhost:8080",db)
 
 func Template_js(args ...string) string
-    var calendar_cell; $.get('/calendar/cell.jst',function(data) {
-    calendar_cell = data }); var calendar_row;
-    $.get('/calendar/row.jst',function(data) { calendar_row = data });
+    {{ js "calendar_cell" "calendar_row"}} will read
+    /static/calendar_cell.js and generate
+
+    &lt;script type='text/template' id='template_calendar_cell'&gt;
+    //actual calendar_cell.js content
+    &lt;/script&gt;
+    &lt;script&gt;
+    var calendar_cell = $('#template_calendar_cell').html();
+    &lt;/script&gt;
 
 
 TYPES
