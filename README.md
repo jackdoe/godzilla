@@ -13,7 +13,6 @@ check out the exampe directory for some apps - there is as simple blog, simple m
 ## soo, this is how it looks
 
 first we will create sqlite3 database
-
 ```
 sqlite3 ./foo.db
 CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY,data TEXT NOT NULL);
@@ -21,9 +20,7 @@ INSERT INTO posts(data) VALUES('godzilla was here');
 INSERT INTO posts(data) VALUES('godzilla left');
 ```
 
-then we will write the main package 
-
-./main.go:
+then we will write the main package  `./main.go`:
 ```
 package main
 import (
@@ -44,9 +41,7 @@ func main() {
 }
 ```
 
-and the list view
-
-./v/main/list.html:
+and the list view `./v/main/list.html`
 ```
 {{define "yield"}}
     <ul>
