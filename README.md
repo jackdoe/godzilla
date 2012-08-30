@@ -93,7 +93,73 @@ lets go over the fields one by one and imagine we are accessing the object in a 
 
 ## ctx.Render()
     
+### javascript templates
+`{{ js "calendar_cell"}}` will generate the following code:
 
+```
+<script type='text/template' id='template_calendar_cell'>
+//actual calendar_cell.js content
+<ul>
+    <% _.each(events,function(e) { %>
+        <li>
+            <%= e.title%>
+        </li>
+    <% }) %>
+</ul>
+</script>
+<script>
+var calendar_cell = $('#template_calendar_cell').html();
+</script>
+```
+
+and later we can just use
+
+`$('#cell_5').html(_.template(calendar_cell,{events: [{title: 'start learning Go'},{title: 'more Go'}]}))`
+
+
+### SQL
+currently we have 3-4 simple SQL helper functions that return `map[string]interface{}`
+`ctx.Query("SELECT id,title,stamp FROM events")` for example will return `[]map[string]interface{}` that looks like this:
+
+```
+[
+    {
+        "id": 5
+        "title": "very nice title"
+        "stamp": 48374729
+    },
+    {
+        "id": 6
+        "title": "true story"
+        "stamp": 48374729
+    }
+]
+```
+
+this type of hash can be used nicely in the templates for example:
+```
+in main.go:
+
+func list_events(ctx *Context) {
+    ctx.O["events"] = ctx.Query("SELECT id,title,stamp FROM events")
+    ctx.Render() // if render is without arguments it will render views/module_name/function_name.html
+}
+
+in ./v/main/list_events.html
+
+{{define "yield"}}
+    <ul>
+    {{range .events}}
+        <li>
+            <a href="/show/{{.id}}">
+                {{.title}} - {{.stamp}}
+            </a>
+        </li>
+    {{end}}
+    </ul>
+{{end}}
+
+```
 
 ### godoc
 
