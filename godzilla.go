@@ -117,7 +117,7 @@ func caller(level int) string {
 
 // taken from https://github.com/hoisie/web
 func root() string {
-	arg0 := path.Clean(os.Args[0])
+	arg0,_ := path.Split(path.Clean(os.Args[0]))
 	wd, _ := os.Getwd()
 	if starts_with_slash(arg0) {
 		return arg0
