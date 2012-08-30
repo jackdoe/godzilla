@@ -10,6 +10,47 @@ open http://localhost:8080 and enjoy :) (/admin/ is for the admin panel)
 ***
 check out the exampe directory for some apps - there is as simple blog, simple modular app with blog and url shortener, and one small sample app (does nothing usefull)
 
+## soo, this is how it looks
+
+app/main.go:
+```
+package main
+import ("database/sql" "github.com/jackdoe/godzilla" _ "github.com/mattn/go-sqlite3" )
+func list(ctx *godzilla.Context) {
+    ctx.O["posts"] = ctx.Query("SELECT * FROM posts")
+    ctx.Render()
+}
+
+func main() {
+    db, _ := sql.Open("sqlite3", "./foo.db")
+    defer db.Close()
+    db.Exec("CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY,data TEXT NOT NULL)")
+    godzilla.Route("^/$", list)
+    godzilla.Start("localhost:8080", db)
+}
+```
+
+app/v/main/list.html:
+```
+{{define "yield"}}
+    <ul>
+        {{range .posts}}
+            <li>
+                {{.data}}
+            </li>
+        {{end}}
+    </ul>
+{{end}}
+```
+then you should insert some info into the table:
+```
+sqlite3 ./foo.db
+INSERT INTO posts(data) VALUES('godzilla was here');
+INSERT INTO posts(data) VALUES('godzilla left');
+```
+
+### random blabering
+
 i think that using the modular approach is very nice,here is a sample directory structure:
 ```
 app/

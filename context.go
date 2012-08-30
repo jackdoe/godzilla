@@ -45,7 +45,8 @@ func (this *Context) Render(extra ...string) {
 		c = template_regexp.ReplaceAllString(c, "$1"+string(os.PathSeparator)+"$2")
 		extra = append(extra, c)
 	}
-	if (NoLayoutForXHR && this.IsXHR()) || len(this.Layout) == 0 {
+
+	if (NoLayoutForXHR && this.IsXHR()) || (!file_exists(template_filepath(this.Layout))) || len(this.Layout) == 0 {
 		ROOT = "yield"
 	} else {
 		ROOT = "layout"

@@ -24,10 +24,10 @@ const (
 
 var (
 	Debug                 int    = 0
+	EnableSessions        bool   = false
 	ViewDirectory         string = "v"
 	NoLayoutForXHR        bool   = true
 	TemplateExt           string = ".html"
-	EnableSessions        bool   = true
 	EnableStaticDirectory bool   = true
 	StaticDirectory       string = "public"
 
@@ -67,8 +67,7 @@ func Start(addr string, db *sql.DB) {
 		rpath := r.URL.Path
 		if EnableStaticDirectory {
 			f := path.Join(static_dir, path.Clean(rpath))
-			stat, err := os.Stat(f)
-			if err == nil && (!stat.IsDir()) && (r.Method == "GET" || r.Method == "HEAD") {
+			if file_exists(f) && (r.Method == "GET" || r.Method == "HEAD") {
 				log.Printf("FILE: %s {URI: %s}", f, rpath)
 				http.ServeFile(w, r, path.Clean(f))
 				return
@@ -145,4 +144,8 @@ func absolute_or_relative(s string) string {
 }
 func starts_with_slash(s string) bool {
 	return strings.HasPrefix(s, string(os.PathSeparator))
+}
+func file_exists(f string) bool {
+	stat, err := os.Stat(f)
+	return (err == nil && (!stat.IsDir()))
 }
