@@ -122,12 +122,12 @@ VARIABLES
 
 var (
     Debug                 int    = 0
-    Views                 string = "./v/"
+    ViewDirectory         string = "v"
     NoLayoutForXHR        bool   = true
     TemplateExt           string = ".html"
     EnableSessions        bool   = true
     EnableStaticDirectory bool   = true
-    StaticDirectory       string = "./public"
+    StaticDirectory       string = "public"
 )
 
 
@@ -148,10 +148,15 @@ func Start(addr string, db *sql.DB)
     godzilla.Start("localhost:8080",db)
 
 func Template_js(args ...string) string
-    {{ js "calendar/cell" "calendar/row"}}
+    {{ js "calendar_cell" "calendar_row"}} will read and render reads
+    /static/calendar_cell.js and generates
 
-    <script type='text/template' id='calendar/cell' src='/calendar/cell.js'></script><script>var calendar_cell = $('#calendar/cell').html();</script>
-    <script type='text/template' id='calendar/row' src='/calendar/row.js'></script><script>var calendar_row = $('#calendar/row').html();</script>
+    <script type='text/template' id='template_calendar_cell'>
+    //actual calendar_cell.js content
+    </script>
+    <script>
+    var calendar_cell = $('#template_calendar_cell').html();
+    </script>
 
 
 TYPES
@@ -221,17 +226,19 @@ func (this *Context) Redirect(url string)
 func (this *Context) Render(extra ...string)
     renders a template, if the template name starts with os.PathSeparator it
     is rendered with absolute path otherwise it is appended to Views
-    WARNING: all template names are converted to lower case example
+    WARNING: all template names are converted to lower case
 
     ctx.Render("show") // -> ./v/show.html (Views + "show" + ".html")
     ctx.Render("/tmp/show") // -> /tmp/show.html ("/tmp/show" + ".html")
 
-    if left without arguments (ctx.Render()) it takes the
+    if left without arguments (ctx.Render()) - it takes the
     package_name.function_name and renders
-    v/package_name/function.templateExt so for example if we have package
-    gallery with function Album() and we have ctx.Render() inside it it will
-    render Views + /gallery/ + album + TemplateExt (default:
-    ./v/gallery/album.html)
+
+    v/package_name/function.templateExt
+
+    so for example if we have package gallery with function Album() and we
+    have ctx.Render() inside it it will render Views + /gallery/ + album +
+    TemplateExt (default: ./v/gallery/album.html)
 
 func (this *Context) RenderJSON(j interface{}, error_code int) error
 
@@ -250,6 +257,7 @@ func (this *Context) Write(s string)
 SUBDIRECTORIES
 
     example
+
 ```
 
 
