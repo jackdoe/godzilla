@@ -8,7 +8,13 @@ import (
 )
 
 //{{ js "calendar_cell" "calendar_row"}} will read and render
-// reads /static/calendar_cell.js
+// reads /static/calendar_cell.js and generates
+//		<script type='text/template' id='template_calendar_cell'>
+//		//actual calendar_cell.js content
+//		</script>
+//		<script>
+//		var calendar_cell = $('#template_calendar_cell').html();
+//		</script>
 func Template_js(args ...string) string {
 	if !EnableStaticDirectory {
 		return ""
