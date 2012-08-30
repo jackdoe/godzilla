@@ -7,7 +7,7 @@ import (
 	"log"
 )
 
-//{{ js "calendar_cell" "calendar_row"}} will read and render /static/calendar_cell.js and generates
+//{{ js "calendar_cell" "calendar_row"}} will read /static/calendar_cell.js and generate
 //		<script type='text/template' id='template_calendar_cell'>
 //		//actual calendar_cell.js content
 //		</script>
