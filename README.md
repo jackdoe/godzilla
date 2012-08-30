@@ -2,7 +2,7 @@
 ```
 $ go get github.com/jackdoe/godzilla
 $ git clone https://github.com/jackdoe/godzilla.git
-$ cd godzilla/example/blog && go run main.go
+$ cd godzilla/example/blog && go build main.go && ./main
 ```
 
 open http://localhost:8080 and enjoy :) (/admin/ is for the admin panel)
