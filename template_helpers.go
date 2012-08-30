@@ -21,7 +21,7 @@ func Template_js(args ...string) string {
 		}
 		data, e := ioutil.ReadFile(f)
 		if e == nil {
-			s += fmt.Sprintf("<script type='text/template' id='template_%s'>%s</script><script>var %s = $('#template_%s').html();</script>", v, string(data), v, v)
+			s += fmt.Sprintf("<script type='text/template' id='template_%s'>\n%s</script>\n<script>\nvar %s = $('#template_%s').html();\n</script>", v, string(data), v, v)
 		} 
 	}
 	return s
