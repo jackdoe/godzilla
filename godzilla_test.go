@@ -136,7 +136,7 @@ func TestStart(t *testing.T) {
 	jar := &myjar{}
 	jar.jar = make(map[string][]*http.Cookie)
 	client.Jar = jar
-
+	EnableSession = true
 	session.Init(db, "session")
 	session.CookieKey = "go.is.awesome"
 	session.CookieDomain = "localhost"
