@@ -20,9 +20,9 @@ func Template_js(args ...string) string {
 			log.Printf("template_js: %s",f)
 		}
 		data, e := ioutil.ReadFile(f)
-		if e != nil {
+		if e == nil {
 			s += fmt.Sprintf("<script type='text/template' id='template_%s'>%s</script><script>var %s = $('#template_%s').html();</script>", v, string(data), v, v)
-		}
+		} 
 	}
 	return s
 }
