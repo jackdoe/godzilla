@@ -10,6 +10,7 @@ import (
 	"reflect"
 	"strings"
 	"text/template"
+	"regexp"
 )
 
 type Context struct {
@@ -22,6 +23,7 @@ type Context struct {
 	Splat   []string
 	Params  map[string]interface{}
 	Sparams map[string]string
+	Re 		*regexp.Regexp
 }
 
 // renders a template, if the template name starts with os.PathSeparator it is rendered with absolute path

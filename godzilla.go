@@ -61,7 +61,7 @@ func Start(addr string, db *sql.DB) {
 
 	if (EnableStaticDirectory) {
 		_log("enabled static directory: " + StaticDirectory)
-		Route("^/" + StaticDirectory + "/.*$",staticRoute)
+		Route("^/" + StaticDirectory + "/",staticRoute)
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -83,7 +83,7 @@ func Start(addr string, db *sql.DB) {
 						sparams[k] = v[0]
 					}
 				}
-				ctx := &Context{w, r, s, db, map[string]interface{}{}, "layout", matched, params, sparams}
+				ctx := &Context{w, r, s, db, map[string]interface{}{}, "layout", matched, params, sparams,k}
 				ctx.ContentType(TypeHTML)
 				v(ctx)
 				return
@@ -112,7 +112,7 @@ func caller(level int) string {
 }
 
 func staticRoute(ctx *Context) {
-	rpath := ctx.R.URL.Path
+	rpath := ctx.Re.ReplaceAllString(ctx.R.URL.Path,"") // so we have just the filename left
 	method := ctx.R.Method
 	f := path.Join(static_dir, path.Clean(rpath))
 	if file_exists(f) && (method == "GET" || method == "HEAD") {
