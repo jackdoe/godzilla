@@ -128,5 +128,5 @@ func (this *Context) Error(message string, code int) {
 }
 
 func (this *Context) NotFound() {
-	this.Error("NOT FOUND - " + this.R.URL.Path,404)
+	http.NotFound(this.W, this.R)
 }
