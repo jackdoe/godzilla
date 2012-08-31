@@ -61,7 +61,7 @@ func Start(addr string, db *sql.DB) {
 
 	if (EnableStaticDirectory) {
 		_log("enabled static directory: " + StaticDirectory)
-		Route("/^" + StaticDirectory + "/",staticRoute)
+		Route("^/" + StaticDirectory + "/.*$",staticRoute)
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
