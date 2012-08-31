@@ -58,6 +58,20 @@ func (this *Context) Query(query string, args ...interface{}) []map[string]inter
 	return r
 }
 
+// POC: DO NOT USE!
+func (this *Context) QueryRecursive(query string, args ...interface{}) []map[string]interface{} {
+	r := this.Query(query,args...)
+	for _,row := range r {
+		for k,v := range row {
+			if strings.HasSuffix(k,"_id") {
+				rec := "_" + strings.TrimRight(k,"_id")
+				row[rec] = this.FindAllBy(rec,"id",v)
+			}
+		}
+	}
+	return r
+}
+
 // WARNING: POC bad performance
 // updates database fields based on map's keys - every key that begins with _ is skipped, returns (last insert id, error)
 func (this *Context) Replace(table string, input map[string]interface{}) (int64, error) {
@@ -92,10 +106,14 @@ func (this *Context) Replace(table string, input map[string]interface{}) (int64,
 	return last_id, e
 }
 
-func (this *Context) FindBy(table string, field string, v interface{}) map[string]interface{} {
+func (this *Context) FindAllBy(table string, field string, v interface{}) []map[string]interface{} {
 	table = sanitize(table)
 	field = sanitize(field)
-	o := this.Query("SELECT * FROM `"+table+"` WHERE `"+field+"`=?", v)
+	return this.Query("SELECT * FROM `"+table+"` WHERE `"+field+"`=?", v)
+}
+
+func (this *Context) FindBy(table string, field string, v interface{}) map[string]interface{} {
+	o := this.FindAllBy(table,field,v)
 	if len(o) > 0 {
 		return o[0]
 	}
@@ -114,6 +132,8 @@ func (this *Context) DeleteBy(table string, field string, v interface{}) {
 	}
 	this.DB.Exec(q, v)
 }
-func (this *Context) DeleteId(table string, id interface{}) {
+func (this *Context) DeleteById(table string, id interface{}) {
 	this.DeleteBy(table, "id", id)
 }
+
+

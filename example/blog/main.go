@@ -71,7 +71,7 @@ func modify(ctx *godzilla.Context) {
 		id, _ := ctx.Replace(object_type, j)
 		output = ctx.FindById(object_type, id)
 	case "DELETE":
-		ctx.DeleteId(object_type, object_id)
+		ctx.DeleteById(object_type, object_id)
 		output = "deleted " + object_id + "@" + object_type
 	case "OPTIONS":
 		output = ctx.Query("SELECT * FROM `" + object_type + "`") //; ORDER BY created_at,updated_at")

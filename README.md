@@ -292,7 +292,7 @@ func (this *Context) ContentType(s string)
 
 func (this *Context) DeleteBy(table string, field string, v interface{})
 
-func (this *Context) DeleteId(table string, id interface{})
+func (this *Context) DeleteById(table string, id interface{})
 
 func (this *Context) Error(message string, code int)
     example:
