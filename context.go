@@ -126,7 +126,9 @@ func (this *Context) ContentType(s string) {
 func (this *Context) Error(message string, code int) {
 	http.Error(this.W, message, code)
 }
-
+func (this *Context) SendFile(f string) {
+	http.ServeFile(this.W, this.R, f)
+}
 func (this *Context) NotFound() {
 	http.NotFound(this.W, this.R)
 }

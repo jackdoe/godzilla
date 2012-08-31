@@ -1,8 +1,5 @@
 package godzilla
-import (
-	"net/http"
-	"path"
-)
+import "path"
 func define_static_route() {
 	if (EnableStaticDirectory) {
 		_log("enabled static directory: " + StaticDirectory)
@@ -14,8 +11,8 @@ func staticRoute(ctx *Context) {
 	f := path.Join(static_dir, path.Clean(rpath))
 	if file_exists(f) && (ctx.R.Method == "GET" || ctx.R.Method == "HEAD") {
 		ctx.Log("FILE: %s {URI: %s}", f, rpath)
-		http.ServeFile(ctx.W, ctx.R, path.Clean(f))
-		return
+		ctx.SendFile(f)
+	} else {
+		ctx.NotFound()
 	}
-	ctx.NotFound()
 }
