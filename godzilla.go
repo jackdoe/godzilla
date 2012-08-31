@@ -68,7 +68,7 @@ func Start(addr string, db *sql.DB) {
 		if EnableStaticDirectory {
 			f := path.Join(static_dir, path.Clean(rpath))
 			if file_exists(f) && (r.Method == "GET" || r.Method == "HEAD") {
-				log.Printf("FILE: %s {URI: %s}", f, rpath)
+				_log("FILE: %s {URI: %s}", f, rpath)
 				http.ServeFile(w, r, path.Clean(f))
 				return
 			}
@@ -76,7 +76,7 @@ func Start(addr string, db *sql.DB) {
 		for k, v := range routes {
 			matched := k.FindStringSubmatch(rpath)
 			if matched != nil {
-				log.Printf("%s @ %%r{%s}", rpath, k)
+				_log("%s @ %%r{%s}", rpath, k)
 				params := map[string]interface{}{}
 				sparams := map[string]string{}
 				r.ParseForm()
@@ -92,10 +92,10 @@ func Start(addr string, db *sql.DB) {
 				return
 			}
 		}
-		log.Printf("%s - NOT FOUND", rpath)
+		_log("%s - NOT FOUND", rpath)
 		http.NotFound(w, r)
 	})
-	log.Printf("started: http://%s/", addr)
+	_log("started: http://%s/", addr)
 	log.Fatal(http.ListenAndServe(addr, nil))
 }
 
@@ -148,4 +148,7 @@ func starts_with_slash(s string) bool {
 func file_exists(f string) bool {
 	stat, err := os.Stat(f)
 	return (err == nil && (!stat.IsDir()))
+}
+func _log(fmt string, v ...interface{}) {
+	log.Printf(fmt,v...)	
 }
