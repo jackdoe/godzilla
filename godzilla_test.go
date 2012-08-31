@@ -87,7 +87,7 @@ func start_server(db *sql.DB) {
 	go func() {
 		Start(addr, db)
 	}()
-	time.Sleep(2) // XXX: pff..
+	time.Sleep(1000000000) // XXX: pff..
 }
 func stop_server() {
 	http.Get(URL + "exit")
