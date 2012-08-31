@@ -126,3 +126,7 @@ func (this *Context) ContentType(s string) {
 func (this *Context) Error(message string, code int) {
 	http.Error(this.W, message, code)
 }
+
+func (this *Context) NotFound() {
+	this.Error("NOT FOUND - " + this.R.URL.Path,404)
+}

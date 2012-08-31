@@ -17,4 +17,5 @@ func staticRoute(ctx *Context) {
 		http.ServeFile(ctx.W, ctx.R, path.Clean(f))
 		return
 	}
+	ctx.NotFound()
 }
