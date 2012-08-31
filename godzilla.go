@@ -59,24 +59,21 @@ func Start(addr string, db *sql.DB) {
 	static_dir = static_directory()
 	views_dir = views_directory()
 
+	if (EnableStaticDirectory) {
+		_log("enabled static directory: " + StaticDirectory)
+		Route("/^" + StaticDirectory + "/",staticRoute)
+	}
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		var s *session.SessionObject
 		if EnableSessions {
 			s = session.New(w, r)
 		}
 		rpath := r.URL.Path
-		if EnableStaticDirectory {
-			f := path.Join(static_dir, path.Clean(rpath))
-			if file_exists(f) && (r.Method == "GET" || r.Method == "HEAD") {
-				_log("FILE: %s {URI: %s}", f, rpath)
-				http.ServeFile(w, r, path.Clean(f))
-				return
-			}
-		}
 		for k, v := range routes {
 			matched := k.FindStringSubmatch(rpath)
 			if matched != nil {
-				_log("%s @ %%r{%s}", rpath, k)
+				_log("%s: %s @ %%r{%s}", r.RemoteAddr, rpath, k)
 				params := map[string]interface{}{}
 				sparams := map[string]string{}
 				r.ParseForm()
@@ -114,13 +111,22 @@ func caller(level int) string {
 	return me.Name()
 }
 
+func staticRoute(ctx *Context) {
+	rpath := ctx.R.URL.Path
+	method := ctx.R.Method
+	f := path.Join(static_dir, path.Clean(rpath))
+	if file_exists(f) && (method == "GET" || method == "HEAD") {
+		ctx.Log("FILE: %s {URI: %s}", f, rpath)
+		http.ServeFile(ctx.W, ctx.R, path.Clean(f))
+		return
+	}
+}
+
 // taken from https://github.com/hoisie/web
 func root() string {
 	arg0,_ := path.Split(path.Clean(os.Args[0]))
 	wd, _ := os.Getwd()
-	if starts_with_slash(arg0) {
-		return arg0
-	}
+	if starts_with_slash(arg0) { return arg0 }
 	return path.Join(wd, arg0)
 }
 func static_directory() string {
