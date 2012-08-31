@@ -58,11 +58,7 @@ func Start(addr string, db *sql.DB) {
 
 	static_dir = static_directory()
 	views_dir = views_directory()
-
-	if (EnableStaticDirectory) {
-		_log("enabled static directory: " + StaticDirectory)
-		Route("^/" + StaticDirectory + "/",staticRoute)
-	}
+	define_static_route()
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		var s *session.SessionObject
@@ -109,17 +105,6 @@ func caller(level int) string {
 		return "unnamed"
 	}
 	return me.Name()
-}
-
-func staticRoute(ctx *Context) {
-	rpath := ctx.Re.ReplaceAllString(ctx.R.URL.Path,"") // so we have just the filename left
-	method := ctx.R.Method
-	f := path.Join(static_dir, path.Clean(rpath))
-	if file_exists(f) && (method == "GET" || method == "HEAD") {
-		ctx.Log("FILE: %s {URI: %s}", f, rpath)
-		http.ServeFile(ctx.W, ctx.R, path.Clean(f))
-		return
-	}
 }
 
 // taken from https://github.com/hoisie/web
