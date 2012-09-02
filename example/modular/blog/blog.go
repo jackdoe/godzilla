@@ -31,9 +31,9 @@ func List(ctx *godzilla.Context) {
 	ctx.O["link"] = link
 	_, ok := ctx.Params["category"]
 	if ok {
-		ctx.O["items"] = ctx.Query("SELECT a.*,(strftime('%s', 'now') - a.created_at) as ago FROM posts a, post_category b WHERE a.id = b.post_id AND b.category_id=? ORDER BY a.created_at DESC", ctx.Params["category"])
+		ctx.O["items"] = ctx.Query("SELECT a.*,(strftime('%s', 'now') - a.updated_at) as ago FROM posts a, post_category b WHERE a.id = b.post_id AND b.category_id=? ORDER BY a.updated_at DESC", ctx.Params["category"])
 	} else {
-		ctx.O["items"] = ctx.Query("SELECT *,(strftime('%s', 'now') - created_at) as ago FROM posts ORDER BY created_at DESC")
+		ctx.O["items"] = ctx.Query("SELECT *,(strftime('%s', 'now') - updated_at) as ago FROM posts ORDER BY updated_at DESC")
 	}
 	ctx.O["is_admin"] = is_admin(ctx)
 	ctx.Render()
@@ -43,7 +43,6 @@ func Modify(ctx *godzilla.Context) {
 		ctx.Error("not allowed", 404)
 		return
 	}
-
 	object_id := ctx.Splat[2]
 	object_type := ctx.Splat[1]
 	if object_type != "posts" && object_type != "categories" && object_type != "post_category" {
@@ -51,35 +50,22 @@ func Modify(ctx *godzilla.Context) {
 		return
 	}
 	var output interface{}
-	var j map[string]interface{}
-	e := json.Unmarshal([]byte(ctx.Sparams["json"]), &j)
-	if j == nil {
-		j = map[string]interface{}{}
-	}
+
 	switch ctx.R.Method {
-	case "PATCH":
-		output = ctx.Query("SELECT a.* FROM categories a, post_category b WHERE a.id = b.category_id AND b.post_id=?", object_id)
 	case "GET":
 		output = ctx.FindById(object_type, object_id)
 	case "POST":
-		if j["id"] == nil {
-			j["created_at"] = time.Now().Unix()
-		}
+		var j map[string]interface{}
+		json.Unmarshal([]byte(ctx.Sparams["json"]), &j)
+		if j == nil { j = map[string]interface{}{} }
 		j["updated_at"] = time.Now().Unix()
 		id, _ := ctx.Replace(object_type, j)
 		output = ctx.FindById(object_type, id)
 	case "DELETE":
 		ctx.DeleteById(object_type, object_id)
 		output = "deleted " + object_id + "@" + object_type
-	case "OPTIONS":
-		output = ctx.Query("SELECT * FROM `" + object_type + "`") //; ORDER BY created_at,updated_at")
 	}
-	b, e := json.Marshal(output)
-	if e != nil {
-		b = []byte(e.Error())
-	}
-	ctx.ContentType(godzilla.TypeJSON)
-	ctx.W.Write(b)
+	ctx.RenderJSON(output,404)
 }
 func Show(ctx *godzilla.Context) {
 	o := ctx.FindById("posts", ctx.Splat[1])
